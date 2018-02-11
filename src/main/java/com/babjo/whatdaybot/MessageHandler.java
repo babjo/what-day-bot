@@ -50,6 +50,6 @@ public class MessageHandler {
 
     @Scheduled(cron = "0 0 19 ? * MON-FRI", zone = "Asia/Seoul")
     public void pushOverworkQuestionMessages() {
-        botService.pushOverworkQuestionMessages();
+        botService.pushWorkLateAtNightMessages();
     }
 }

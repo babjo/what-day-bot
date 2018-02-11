@@ -56,11 +56,11 @@ public class BotService {
         return String.format("오늘은 %s 입니다.", LocalDateTime.now(clock).getDayOfWeek().name());
     }
 
-    public void pushOverworkQuestionMessages() {
-        pushMessages(OverworkQuestion());
+    public void pushWorkLateAtNightMessages() {
+        pushMessages(WorkLateAtNight());
     }
 
-    private String OverworkQuestion() {
+    private String WorkLateAtNight() {
         return "오늘 야근?";
     }
 
