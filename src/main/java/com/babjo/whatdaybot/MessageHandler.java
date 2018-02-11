@@ -43,9 +43,13 @@ public class MessageHandler {
         logger.info("event: {}", event);
     }
 
-    @Scheduled(cron = "0 * * * * *")
-    public void pushMessages() {
-        logger.info(botService.todayOfWeek());
-        // botService.pushMessages();
+    @Scheduled(cron = "0 0 10 ? * MON,TUE,WED,THU,FRI *", zone = "Asia/Seoul")
+    public void pushTodayOfWeekMessages() {
+        botService.pushTodayOfWeekMessages();
+    }
+
+    @Scheduled(cron = "0 0 19 ? * MON,TUE,WED,THU,FRI *", zone = "Asia/Seoul")
+    public void pushOverworkQuestionMessages() {
+        botService.pushOverworkQuestionMessages();
     }
 }
