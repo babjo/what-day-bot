@@ -55,7 +55,7 @@ public class BotService {
     }
 
     private String tomorrowOfWeek() {
-        return String.format("오늘은 %s 입니다.", now().plusDays(1).getDayOfWeek().name());
+        return String.format("내일은 %s 입니다.", now().plusDays(1).getDayOfWeek().name());
     }
 
     private LocalDateTime now() {
