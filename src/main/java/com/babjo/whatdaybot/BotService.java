@@ -43,24 +43,34 @@ public class BotService {
                 return "미워하지마";
             case "오늘 무슨 요일?":
                 return todayOfWeek();
+            case "내일 무슨 요일?":
+                return tomorrowOfWeek();
             default:
                 return null;
         }
+    }
+
+    public String todayOfWeek() {
+        return String.format("오늘은 %s 입니다.", now().getDayOfWeek().name());
+    }
+
+    private String tomorrowOfWeek() {
+        return String.format("오늘은 %s 입니다.", now().plusDays(1).getDayOfWeek().name());
+    }
+
+    private LocalDateTime now() {
+        return LocalDateTime.now(clock);
     }
 
     public void pushTodayOfWeekMessages() {
         pushMessages(todayOfWeek());
     }
 
-    public String todayOfWeek() {
-        return String.format("오늘은 %s 입니다.", LocalDateTime.now(clock).getDayOfWeek().name());
-    }
-
     public void pushWorkLateAtNightMessages() {
-        pushMessages(WorkLateAtNight());
+        pushMessages(workLateAtNight());
     }
 
-    private String WorkLateAtNight() {
+    private String workLateAtNight() {
         return "오늘 야근?";
     }
 
