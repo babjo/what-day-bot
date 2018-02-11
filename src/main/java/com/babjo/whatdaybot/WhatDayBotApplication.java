@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.Scheduled;
 
+import com.babjo.whatdaybot.bot.Command;
 import com.babjo.whatdaybot.bot.StartCommand;
 import com.babjo.whatdaybot.bot.StopCommand;
 import com.babjo.whatdaybot.bot.WhatDayBot;
@@ -42,12 +44,18 @@ public class WhatDayBotApplication {
             case "STOP":
                 return whatDayBot.handle(new StopCommand(event.getSource().getSenderId())).getText();
             default:
-                return "";
+                return whatDayBot.handle(
+                        new Command(event.getSource().getSenderId(), event.getMessage().getText())).getText();
         }
     }
 
     @EventMapping
     public void handleDefaultMessageEvent(Event event) {
         logger.info("event: {}", event);
+    }
+
+    @Scheduled(cron = "* * * * MON-SUN")
+    public void pushMessages() {
+        logger.info("pushMessages");
     }
 }
