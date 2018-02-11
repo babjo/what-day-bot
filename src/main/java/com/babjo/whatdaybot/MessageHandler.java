@@ -48,7 +48,7 @@ public class MessageHandler {
         botService.pushTodayOfWeekMessages();
     }
 
-    @Scheduled(cron = "0 13 18 ? * MON,TUE,WED,THU,FRI,SAT,SUN", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 20 18 ? * MON,TUE,WED,THU,FRI,SAT,SUN", zone = "Asia/Seoul")
     public void pushOverworkQuestionMessages() {
         botService.pushOverworkQuestionMessages();
     }
