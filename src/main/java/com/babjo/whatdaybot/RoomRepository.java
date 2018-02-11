@@ -1,8 +1,6 @@
-package com.babjo.whatdaybot.repository;
+package com.babjo.whatdaybot;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import com.babjo.whatdaybot.Room;
 
 public interface RoomRepository extends JpaRepository<Room, String> {
 }

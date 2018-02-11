@@ -1,4 +1,7 @@
-package com.babjo.whatdaybot.config;
+package com.babjo.whatdaybot;
+
+import java.time.Clock;
+import java.time.ZoneId;
 
 import javax.sql.DataSource;
 
@@ -9,11 +12,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
-public class DatabaseConfig {
+public class Config {
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource dataSource() {
         return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    public BotService botService(RoomRepository roomRepository){
+        return new BotService(roomRepository, Clock.system(ZoneId.of("UTC+09:00")));
     }
 }
