@@ -2,8 +2,8 @@ package com.babjo.whatdaybot.bot;
 
 import static com.babjo.whatdaybot.bot.CommandResponse.NULL_RESPONSE;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 import com.babjo.whatdaybot.Room;
 import com.babjo.whatdaybot.repository.RoomRepository;
@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class WhatDayBot {
 
     private final RoomRepository roomRepository;
+    private final Clock clock;
 
     public CommandResponse handle(StartCommand command) {
         roomRepository.save(new Room(command.getFrom(), true));
@@ -42,7 +43,7 @@ public class WhatDayBot {
     }
 
     private String todayDay() {
-        return LocalDateTime.now().atZone(ZoneId.of("JST")).getDayOfWeek().name();
+        return LocalDateTime.now(clock).getDayOfWeek().name();
     }
 
 }

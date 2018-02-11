@@ -54,7 +54,7 @@ public class WhatDayBotApplication {
         logger.info("event: {}", event);
     }
 
-    @Scheduled(cron = "* * * * MON-SUN")
+    @Scheduled(cron = "0 * * * * *")
     public void pushMessages() {
         logger.info("pushMessages");
     }

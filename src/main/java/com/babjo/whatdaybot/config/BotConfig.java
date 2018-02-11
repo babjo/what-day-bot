@@ -1,5 +1,8 @@
 package com.babjo.whatdaybot.config;
 
+import java.time.Clock;
+import java.time.ZoneId;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,6 +14,6 @@ public class BotConfig {
 
     @Bean
     public WhatDayBot whatDayBot(RoomRepository roomRepository) {
-        return new WhatDayBot(roomRepository);
+        return new WhatDayBot(roomRepository, Clock.system(ZoneId.of("JST")));
     }
 }
