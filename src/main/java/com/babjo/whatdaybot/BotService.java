@@ -42,20 +42,32 @@ public class BotService {
             case "미워":
                 return "미워하지마";
             case "오늘 무슨 요일?":
-                return todayDay();
+                return todayOfWeek();
             default:
                 return null;
         }
     }
 
-    public String todayDay() {
+    public void pushTodayOfWeekMessages() {
+        pushMessages(todayOfWeek());
+    }
+
+    public String todayOfWeek() {
         return String.format("오늘은 %s 입니다.", LocalDateTime.now(clock).getDayOfWeek().name());
     }
 
-    public void pushMessages() {
+    public void pushOverworkQuestionMessages() {
+        pushMessages(OverworkQuestion());
+    }
+
+    private String OverworkQuestion() {
+        return "오늘 야근?";
+    }
+
+    public void pushMessages(String text) {
         List<Room> rooms = roomRepository.findAll();
         rooms.stream().filter(Room::isBotRunning).forEach(room -> {
-            final TextMessage textMessage = new TextMessage(todayDay());
+            final TextMessage textMessage = new TextMessage(text);
             final PushMessage pushMessage = new PushMessage(room.getId(), textMessage);
             try {
                 client.pushMessage(pushMessage).get();
