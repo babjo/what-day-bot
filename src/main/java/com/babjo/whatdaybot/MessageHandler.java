@@ -45,6 +45,7 @@ public class MessageHandler {
 
     @Scheduled(cron = "0 * * * * *")
     public void pushMessages() {
-        logger.info("pushMessages");
+        logger.info(botService.todayDay());
+        // botService.pushMessages();
     }
 }

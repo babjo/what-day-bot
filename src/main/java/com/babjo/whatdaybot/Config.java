@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.linecorp.bot.spring.boot.LineBotProperties;
+
 @Configuration
 @EnableScheduling
 public class Config {
@@ -23,7 +25,8 @@ public class Config {
     }
 
     @Bean
-    public BotService botService(RoomRepository roomRepository){
-        return new BotService(roomRepository, Clock.system(ZoneId.of("UTC+09:00")));
+    public BotService botService(RoomRepository roomRepository,
+                                 LineBotProperties properties) {
+        return new BotService(roomRepository, Clock.system(ZoneId.of("UTC+09:00")), properties);
     }
 }
