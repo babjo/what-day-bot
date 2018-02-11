@@ -13,4 +13,5 @@ what-day bot pushes messages to rooms that he is listening to.
 - 19:00, Mon-Fri: what-day asks me if you will work late at night.
 
 Please, Add what-bot as line friend and give me issues.
+
 ![QR](https://github.com/babjo/what-day-bot/blob/master/_assets/QR.png)
