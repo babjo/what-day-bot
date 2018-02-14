@@ -34,7 +34,8 @@ public class MessageHandler {
             case "STOP":
                 return botService.stop(event.getSource().getSenderId());
             default:
-                return botService.handle(event.getSource().getSenderId(), event.getMessage().getText());
+                return botService.handle(event.getSource().getSenderId(), event.getMessage().getText())
+                                 .orElse(null);
         }
     }
 

@@ -3,6 +3,7 @@ package com.babjo.whatdaybot;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class BotService {
         return "OK! STOP!";
     }
 
-    public String handle(String from, String text) {
+    public Optional<String> handle(String from, String text) {
         Room room = roomRepository.findOne(from);
         if (room == null) {
             return null;
@@ -40,13 +41,13 @@ public class BotService {
 
         switch (text) {
             case "미워":
-                return "미워하지마";
+                return Optional.of("미워하지마");
             case "오늘 무슨 요일?":
-                return todayOfWeek();
+                return Optional.of(todayOfWeek());
             case "내일 무슨 요일?":
-                return tomorrowOfWeek();
+                return Optional.of(tomorrowOfWeek());
             default:
-                return null;
+                return Optional.empty();
         }
     }
 
