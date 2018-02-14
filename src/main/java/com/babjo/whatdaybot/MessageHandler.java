@@ -26,7 +26,7 @@ public class MessageHandler {
     @EventMapping
     public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
         logger.info("event: {}", event);
-        return new TextMessage(handle(event).orElse(null));
+        return handle(event).map(TextMessage::new).orElse(null);
     }
 
     private Optional<String> handle(MessageEvent<TextMessageContent> event) {
