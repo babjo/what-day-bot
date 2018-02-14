@@ -23,14 +23,14 @@ public class BotService {
     private final LineMessagingClient client;
     private final static Logger logger = LoggerFactory.getLogger(BotService.class);
 
-    public String start(String from) {
+    public Optional<String> start(String from) {
         roomRepository.save(new Room(from, true));
-        return "OK! START!";
+        return Optional.of("OK! START!");
     }
 
-    public String stop(String from) {
+    public Optional<String> stop(String from) {
         roomRepository.save(new Room(from, false));
-        return "OK! STOP!";
+        return Optional.of("OK! STOP!");
     }
 
     public Optional<String> handle(String from, String text) {

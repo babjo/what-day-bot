@@ -1,5 +1,7 @@
 package com.babjo.whatdaybot;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +26,17 @@ public class MessageHandler {
     @EventMapping
     public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
         logger.info("event: {}", event);
-        return new TextMessage(handle(event));
+        return new TextMessage(handle(event).orElse(null));
     }
 
-    private String handle(MessageEvent<TextMessageContent> event) {
+    private Optional<String> handle(MessageEvent<TextMessageContent> event) {
         switch (event.getMessage().getText().toUpperCase()) {
             case "START":
                 return botService.start(event.getSource().getSenderId());
             case "STOP":
                 return botService.stop(event.getSource().getSenderId());
             default:
-                return botService.handle(event.getSource().getSenderId(), event.getMessage().getText())
-                                 .orElse(null);
+                return botService.handle(event.getSource().getSenderId(), event.getMessage().getText());
         }
     }
 
