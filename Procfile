@@ -1,1 +1,1 @@
-web: java -javaagent:/app/newrelic/newrelic.jar -cp target/classes:target/dependency/* Main
+web: java -javaagent:newrelic/newrelic.jar -cp target/classes:target/dependency/* -Dserver.port=$PORT $JAVA_OPTS -jar build/libs/*.jar
