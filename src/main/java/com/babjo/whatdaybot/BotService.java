@@ -10,57 +10,71 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
 import com.linecorp.bot.model.message.TextMessage;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class BotService {
 
     private final Clock clock;
     private final LineMessagingClient client;
     private final RoomRepository roomRepository;
     private final Random random;
+    private List<Command> commands;
 
     private final static Logger logger = LoggerFactory.getLogger(BotService.class);
 
+    public BotService(Clock clock, LineMessagingClient client, RoomRepository roomRepository,
+                      Random random) {
+        this.clock = clock;
+        this.client = client;
+        this.roomRepository = roomRepository;
+        this.random = random;
+
+        initCommands();
+    }
+
+    private void initCommands() {
+        commands = ImmutableList.of(
+                new Command("START", "메세지 스케줄러 시작", from -> {
+                    roomRepository.save(new Room(from, true));
+                    return "OK! START!";
+                }),
+                new Command("STOP", "지긋지긋한 메세지 스케줄러 그만", from -> {
+                    roomRepository.save(new Room(from, false));
+                    return "OK! STOP!";
+                }),
+                new Command("미워", "-", ignored -> "미워하지마"),
+                new Command("미웡", "-", ignored -> "미워하지마"),
+                new Command("어제 무슨 요일?", "-", ignored -> yesterday()),
+                new Command("금일 무슨 요일?", "-", ignored -> today()),
+                new Command("오늘 무슨 요일?", "-", ignored -> today()),
+                new Command("내일 무슨 요일?", "-", ignored -> tomorrow()),
+                new Command("모레 무슨 요일?", "-", ignored -> dayAfterTomorrow())
+        );
+    }
+
     public Optional<String> handle(String from, String text) {
-        String response = null;
-        switch (text) {
-            case "START":
-                roomRepository.save(new Room(from, true));
-                response = "OK! START!";
-                break;
-            case "STOP":
-                roomRepository.save(new Room(from, false));
-                response = "OK! STOP!";
-                break;
-            case "미워":
-                response = "미워하지마";
-                break;
-            case "미웡":
-                response = "미워하지마";
-                break;
-            case "어제 무슨 요일?":
-                response = yesterday();
-                break;
-            case "금일 무슨 요일?":
-                response = today();
-                break;
-            case "오늘 무슨 요일?":
-                response = today();
-                break;
-            case "내일 무슨 요일?":
-                response = tomorrow();
-                break;
-            case "모레 무슨 요일?":
-                response = dayAfterTomorrow();
-            default:
-                break;
+        String upperText = text.toUpperCase();
+        if ("HELP".equals(upperText)) {
+            return Optional.of(help());
         }
-        return Optional.ofNullable(response);
+        for (Command command : commands) {
+            if (command.getName().equals(upperText)) {
+                return Optional.of(command.getFunction().apply(from));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private String help() {
+        return commands.stream()
+                       .map(command -> String.format("\nCommand: %s\nDescription: %s",
+                                                     command.getName(),
+                                                     command.getDescription()))
+                       .reduce("Command list", String::concat);
     }
 
     private String yesterday() {
