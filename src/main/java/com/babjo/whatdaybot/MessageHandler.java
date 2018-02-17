@@ -1,13 +1,10 @@
 package com.babjo.whatdaybot;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.TextMessage;
@@ -26,26 +23,11 @@ public class MessageHandler {
     @EventMapping
     public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
         logger.info("event: {}", event);
-        return handle(event).map(TextMessage::new).orElse(null);
+        return botService.handle(event.getSource().getSenderId(), event.getMessage().getText())
+                         .map(TextMessage::new).orElse(null);
     }
 
-    private Optional<String> handle(MessageEvent<TextMessageContent> event) {
-        switch (event.getMessage().getText().toUpperCase()) {
-            case "START":
-                return botService.start(event.getSource().getSenderId());
-            case "STOP":
-                return botService.stop(event.getSource().getSenderId());
-            default:
-                return botService.handle(event.getSource().getSenderId(), event.getMessage().getText());
-        }
-    }
-
-    @EventMapping
-    public void handleDefaultMessageEvent(Event event) {
-        logger.info("event: {}", event);
-    }
-
-    @Scheduled(cron = "0 0 10 ? * MON-FRI", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 30 09 ? * MON-FRI", zone = "Asia/Seoul")
     public void pushTodayOfWeekMessages() {
         botService.pushTodayOfWeekMessages();
     }

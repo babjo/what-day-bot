@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -18,45 +19,64 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BotService {
 
-    private final RoomRepository roomRepository;
     private final Clock clock;
     private final LineMessagingClient client;
+    private final RoomRepository roomRepository;
+    private final Random random;
+
     private final static Logger logger = LoggerFactory.getLogger(BotService.class);
 
-    public Optional<String> start(String from) {
-        roomRepository.save(new Room(from, true));
-        return Optional.of("OK! START!");
-    }
-
-    public Optional<String> stop(String from) {
-        roomRepository.save(new Room(from, false));
-        return Optional.of("OK! STOP!");
-    }
-
     public Optional<String> handle(String from, String text) {
-        Room room = roomRepository.findOne(from);
-        if (room == null) {
-            return null;
-        }
-
+        String response = null;
         switch (text) {
+            case "START":
+                roomRepository.save(new Room(from, true));
+                response = "OK! START!";
+                break;
+            case "STOP":
+                roomRepository.save(new Room(from, false));
+                response = "OK! STOP!";
+                break;
             case "미워":
-                return Optional.of("미워하지마");
+                response = "미워하지마";
+                break;
+            case "미웡":
+                response = "미워하지마";
+                break;
+            case "어제 무슨 요일?":
+                response = yesterday();
+                break;
+            case "금일 무슨 요일?":
+                response = today();
+                break;
             case "오늘 무슨 요일?":
-                return Optional.of(todayOfWeek());
+                response = today();
+                break;
             case "내일 무슨 요일?":
-                return Optional.of(tomorrowOfWeek());
+                response = tomorrow();
+                break;
+            case "모레 무슨 요일?":
+                response = dayAfterTomorrow();
             default:
-                return Optional.empty();
+                break;
         }
+        return Optional.ofNullable(response);
     }
 
-    public String todayOfWeek() {
+    private String yesterday() {
+        return String.format("어제는 %s 입니다.", now().plusDays(-1).getDayOfWeek().name());
+    }
+
+    private String today() {
         return String.format("오늘은 %s 입니다.", now().getDayOfWeek().name());
     }
 
-    private String tomorrowOfWeek() {
+    private String tomorrow() {
         return String.format("내일은 %s 입니다.", now().plusDays(1).getDayOfWeek().name());
+    }
+
+    private String dayAfterTomorrow() {
+        return String.format("모레는 %s 입니다.", now().plusDays(2).getDayOfWeek().name());
     }
 
     private LocalDateTime now() {
@@ -64,7 +84,7 @@ public class BotService {
     }
 
     public void pushTodayOfWeekMessages() {
-        pushMessages(todayOfWeek());
+        pushMessages(today());
     }
 
     public void pushWorkLateAtNightMessages() {
@@ -72,10 +92,11 @@ public class BotService {
     }
 
     private String workLateAtNight() {
-        return "오늘 야근?";
+        String[] responses = new String[] { "오늘 야근?", "야근야근???", "오늘도 야근?!???", "야근 ㄱ?", "야근각?" };
+        return responses[random.nextInt(responses.length)];
     }
 
-    public void pushMessages(String text) {
+    private void pushMessages(String text) {
         List<Room> rooms = roomRepository.findAll();
         rooms.stream().filter(Room::isBotRunning).forEach(room -> {
             final TextMessage textMessage = new TextMessage(text);

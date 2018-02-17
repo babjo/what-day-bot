@@ -2,6 +2,7 @@ package com.babjo.whatdaybot;
 
 import java.time.Clock;
 import java.time.ZoneId;
+import java.util.Random;
 
 import javax.sql.DataSource;
 
@@ -27,6 +28,6 @@ public class Config {
     @Bean
     public BotService botService(RoomRepository roomRepository,
                                  LineMessagingClient client) {
-        return new BotService(roomRepository, Clock.system(ZoneId.of("UTC+09:00")), client);
+        return new BotService(Clock.system(ZoneId.of("UTC+09:00")), client, roomRepository, new Random());
     }
 }
