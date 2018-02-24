@@ -14,7 +14,9 @@ import com.google.common.collect.ImmutableList;
 
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
+import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.VideoMessage;
 
 public class BotService {
 
@@ -40,26 +42,27 @@ public class BotService {
         commands = ImmutableList.of(
                 new Command("START", "메세지 스케줄러 시작", from -> {
                     roomRepository.save(new Room(from, true));
-                    return "OK! START!";
+                    return new TextMessage("OK! START!");
                 }),
                 new Command("STOP", "지긋지긋한 메세지 스케줄러 그만", from -> {
                     roomRepository.save(new Room(from, false));
-                    return "OK! STOP!";
+                    return new TextMessage("OK! STOP!");
                 }),
-                new Command("미워", "-", ignored -> "미워하지마"),
-                new Command("미웡", "-", ignored -> "미워하지마"),
-                new Command("어제 무슨 요일?", "-", ignored -> yesterday()),
-                new Command("금일 무슨 요일?", "-", ignored -> today()),
-                new Command("오늘 무슨 요일?", "-", ignored -> today()),
-                new Command("내일 무슨 요일?", "-", ignored -> tomorrow()),
-                new Command("모레 무슨 요일?", "-", ignored -> dayAfterTomorrow())
+                new Command("미워", "-", ignored -> new TextMessage("미워하지마")),
+                new Command("미웡", "-", ignored -> new TextMessage("미워하지마")),
+                new Command("어제 무슨 요일?", "-", ignored -> yesterdayTextMessage()),
+                new Command("금일 무슨 요일?", "-", ignored -> todayTextMessage()),
+                new Command("오늘 무슨 요일?", "-", ignored -> todayTextMessage()),
+                new Command("내일 무슨 요일?", "-", ignored -> tomorrowTextMessage()),
+                new Command("모레 무슨 요일?", "-", ignored -> dayAfterTomorrowTextMessage()),
+                new Command("월요송", "-", ignored -> spongebobVideoMessage())
         );
     }
 
-    public Optional<String> handle(String from, String text) {
+    public Optional<Message> handle(String from, String text) {
         String upperText = text.toUpperCase();
         if ("HELP".equals(upperText)) {
-            return Optional.of(help());
+            return Optional.of(helpTextMessage());
         }
         for (Command command : commands) {
             if (command.getName().equals(upperText)) {
@@ -69,28 +72,28 @@ public class BotService {
         return Optional.empty();
     }
 
-    private String help() {
-        return commands.stream()
-                       .map(command -> String.format("\nCommand: %s\nDescription: %s",
-                                                     command.getName(),
-                                                     command.getDescription()))
-                       .reduce("Command list", String::concat);
+    private TextMessage helpTextMessage() {
+        return new TextMessage(commands.stream()
+                                       .map(command -> String.format("\nCommand: %s\nDescription: %s",
+                                                                     command.getName(),
+                                                                     command.getDescription()))
+                                       .reduce("Command list", String::concat));
     }
 
-    private String yesterday() {
-        return String.format("어제는 %s 입니다.", now().plusDays(-1).getDayOfWeek().name());
+    private TextMessage yesterdayTextMessage() {
+        return new TextMessage(String.format("어제는 %s 입니다.", now().plusDays(-1).getDayOfWeek().name()));
     }
 
-    private String today() {
-        return String.format("오늘은 %s 입니다.", now().getDayOfWeek().name());
+    private TextMessage todayTextMessage() {
+        return new TextMessage(String.format("오늘은 %s 입니다.", now().getDayOfWeek().name()));
     }
 
-    private String tomorrow() {
-        return String.format("내일은 %s 입니다.", now().plusDays(1).getDayOfWeek().name());
+    private TextMessage tomorrowTextMessage() {
+        return new TextMessage(String.format("내일은 %s 입니다.", now().plusDays(1).getDayOfWeek().name()));
     }
 
-    private String dayAfterTomorrow() {
-        return String.format("모레는 %s 입니다.", now().plusDays(2).getDayOfWeek().name());
+    private TextMessage dayAfterTomorrowTextMessage() {
+        return new TextMessage(String.format("모레는 %s 입니다.", now().plusDays(2).getDayOfWeek().name()));
     }
 
     private LocalDateTime now() {
@@ -98,23 +101,31 @@ public class BotService {
     }
 
     public void pushTodayOfWeekMessages() {
-        pushMessages(today());
+        pushMessages(todayTextMessage());
     }
 
     public void pushWorkLateAtNightMessages() {
         pushMessages(workLateAtNight());
     }
 
-    private String workLateAtNight() {
-        String[] responses = new String[] { "오늘 야근?", "야근야근???", "오늘도 야근?!???", "야근 ㄱ?", "야근각?" };
-        return responses[random.nextInt(responses.length)];
+    public void pushMondayMessages() {
+        pushMessages(spongebobVideoMessage());
     }
 
-    private void pushMessages(String text) {
+    private VideoMessage spongebobVideoMessage() {
+        return new VideoMessage("https://vt.media.tumblr.com/tumblr_p4nukupwiG1x76q2h.mp4",
+                                "https://78.media.tumblr.com/3677c5e4ba151cc86d19999e0d2e8855/tumblr_p4nuzyVKwJ1x76q2ho1_r1_1280.png");
+    }
+
+    private TextMessage workLateAtNight() {
+        String[] responses = new String[] { "오늘 야근?", "야근야근???", "오늘도 야근?!???", "야근 ㄱ?", "야근각?" };
+        return new TextMessage(responses[random.nextInt(responses.length)]);
+    }
+
+    private void pushMessages(Message message) {
         List<Room> rooms = roomRepository.findAll();
         rooms.stream().filter(Room::isBotRunning).forEach(room -> {
-            final TextMessage textMessage = new TextMessage(text);
-            final PushMessage pushMessage = new PushMessage(room.getId(), textMessage);
+            final PushMessage pushMessage = new PushMessage(room.getId(), message);
             try {
                 client.pushMessage(pushMessage).get();
             } catch (InterruptedException | ExecutionException e) {
