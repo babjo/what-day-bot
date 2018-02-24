@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
@@ -21,10 +22,16 @@ public class MessageHandler {
     public MessageHandler(BotService botService) {this.botService = botService;}
 
     @EventMapping
-    public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
+    public TextMessage handleTextMessageEvent(MessageEvent<MessageContent> event) {
         logger.info("event: {}", event);
-        return botService.handle(event.getSource().getSenderId(), event.getMessage().getText())
-                         .map(TextMessage::new).orElse(null);
+        if (event.getMessage() instanceof TextMessageContent) {
+            TextMessageContent textMessageContent = (TextMessageContent) event.getMessage();
+            return botService.handle(event.getSource().getSenderId(), textMessageContent.getText())
+                             .map(TextMessage::new).orElse(null);
+        } else {
+            return null;
+        }
+
     }
 
     @Scheduled(cron = "0 30 09 ? * MON-FRI", zone = "Asia/Seoul")
