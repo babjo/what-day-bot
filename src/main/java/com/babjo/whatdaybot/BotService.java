@@ -3,7 +3,6 @@ package com.babjo.whatdaybot;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -14,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
+import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.VideoMessage;
@@ -55,21 +55,21 @@ public class BotService {
                 new Command("오늘 무슨 요일?", "-", ignored -> todayTextMessage()),
                 new Command("내일 무슨 요일?", "-", ignored -> tomorrowTextMessage()),
                 new Command("모레 무슨 요일?", "-", ignored -> dayAfterTomorrowTextMessage()),
-                new Command("월요송", "-", ignored -> spongebobVideoMessage())
+                new Command("월요송", "-", ignored -> mondaySongVideoMessage())
         );
     }
 
-    public Optional<Message> handle(String from, String text) {
-        String upperText = text.toUpperCase();
+    public Message handleTextMessage(String from, TextMessageContent textMessageContent) {
+        String upperText = textMessageContent.getText().toUpperCase();
         if ("HELP".equals(upperText)) {
-            return Optional.of(helpTextMessage());
+            return helpTextMessage();
         }
         for (Command command : commands) {
             if (command.getName().equals(upperText)) {
-                return Optional.of(command.getFunction().apply(from));
+                return command.getFunction().apply(from);
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     private TextMessage helpTextMessage() {
@@ -109,10 +109,10 @@ public class BotService {
     }
 
     public void pushMondayMessages() {
-        pushMessages(spongebobVideoMessage());
+        pushMessages(mondaySongVideoMessage());
     }
 
-    private VideoMessage spongebobVideoMessage() {
+    private VideoMessage mondaySongVideoMessage() {
         return new VideoMessage("https://vt.media.tumblr.com/tumblr_p4nukupwiG1x76q2h.mp4",
                                 "https://78.media.tumblr.com/3677c5e4ba151cc86d19999e0d2e8855/tumblr_p4nuzyVKwJ1x76q2ho1_r1_1280.png");
     }

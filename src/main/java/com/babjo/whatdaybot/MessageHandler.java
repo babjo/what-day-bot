@@ -22,12 +22,11 @@ public class MessageHandler {
     public MessageHandler(BotService botService) {this.botService = botService;}
 
     @EventMapping
-    public Message handleTextMessageEvent(MessageEvent<MessageContent> event) {
+    public Message handleMessageEvent(MessageEvent<MessageContent> event) {
         logger.info("event: {}", event);
         if (event.getMessage() instanceof TextMessageContent) {
-            TextMessageContent textMessageContent = (TextMessageContent) event.getMessage();
-            return botService.handle(event.getSource().getSenderId(), textMessageContent.getText())
-                             .orElse(null);
+            return botService.handleTextMessage(event.getSource().getSenderId(),
+                                                (TextMessageContent) event.getMessage());
         }
         return null;
     }
