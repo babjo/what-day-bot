@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 public class RisingKeywords {
     private final LocalDateTime time;
-    private final List<String> keywords;
+    private final List<RisingKeyword> keywords;
 }
