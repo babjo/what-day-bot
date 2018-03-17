@@ -133,7 +133,7 @@ public class BotService {
         return new TextMessage(
                 String.format("인기검색어 %s\n", risingKeywords.getTime()) +
                 String.join("\n",
-                            IntStream.range(0, risingKeywords.getKeywords().size())
+                            IntStream.range(0, 10)
                                      .mapToObj(i -> String
                                              .format("%d. %s: %s",
                                                      i + 1,
