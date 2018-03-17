@@ -7,6 +7,9 @@ import java.util.concurrent.Executors;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -17,12 +20,17 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import com.babjo.whatdaybot.repository.CachedRisingKeywordRepository;
 import com.babjo.whatdaybot.repository.RisingKeywordRepository;
 import com.babjo.whatdaybot.repository.RoomRepository;
+import com.babjo.whatdaybot.utils.RisingKeywordCrawler;
+import com.babjo.whatdaybot.utils.URLShortener;
 
 import com.linecorp.bot.client.LineMessagingClient;
 
 @Configuration
 @EnableScheduling
 public class Config {
+
+    private static final Logger logger = LoggerFactory.getLogger(Config.class);
+
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource")
@@ -43,8 +51,14 @@ public class Config {
     }
 
     @Bean
-    public RisingKeywordRepository risingKeywordRepository(Clock clock) {
+    @ConfigurationProperties(prefix = "naver.openapi")
+    public URLShortener urlShortener() {
+        return new URLShortener();
+    }
+
+    @Bean
+    public RisingKeywordRepository risingKeywordRepository(Clock clock, URLShortener urlShortener) {
         return new CachedRisingKeywordRepository(Executors.newScheduledThreadPool(1),
-                                                 new RisingKeywordCrawler(), clock);
+                                                 new RisingKeywordCrawler(), clock, urlShortener);
     }
 }

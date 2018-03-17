@@ -2,8 +2,6 @@ package com.babjo.whatdaybot;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -137,29 +135,12 @@ public class BotService {
                 String.join("\n",
                             IntStream.range(0, risingKeywords.getKeywords().size())
                                      .mapToObj(i -> String
-                                             .format("%d. %s: https://search.naver.com/search.naver?query=%s",
-                                                     i + 1, risingKeywords.getKeywords().get(i),
-                                                     encodeURIComponent(risingKeywords.getKeywords().get(i))))
+                                             .format("%d. %s: %s",
+                                                     i + 1,
+                                                     risingKeywords.getKeywords().get(i).getText(),
+                                                     risingKeywords.getKeywords().get(i).getUrl()))
                                      .collect(toImmutableList()))
         );
-    }
-
-    public static String encodeURIComponent(String s) {
-        String result;
-
-        try {
-            result = URLEncoder.encode(s, "UTF-8")
-                               .replaceAll("\\+", "%20")
-                               .replaceAll("\\%21", "!")
-                               .replaceAll("\\%27", "'")
-                               .replaceAll("\\%28", "(")
-                               .replaceAll("\\%29", ")")
-                               .replaceAll("\\%7E", "~");
-        } catch (UnsupportedEncodingException e) {
-            result = s;
-        }
-
-        return result;
     }
 
     private TextMessage workLateAtNight() {
