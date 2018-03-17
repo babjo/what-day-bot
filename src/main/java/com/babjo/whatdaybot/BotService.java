@@ -1,19 +1,27 @@
 package com.babjo.whatdaybot;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.babjo.whatdaybot.repository.RisingKeywordRepository;
+import com.babjo.whatdaybot.repository.RisingKeywords;
+import com.babjo.whatdaybot.repository.RoomRepository;
 import com.google.common.collect.ImmutableList;
 
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.PushMessage;
+import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.VideoMessage;
@@ -23,16 +31,20 @@ public class BotService {
     private final Clock clock;
     private final LineMessagingClient client;
     private final RoomRepository roomRepository;
+    private final RisingKeywordRepository risingKeywordRepository;
+
     private final Random random;
     private List<Command> commands;
 
     private final static Logger logger = LoggerFactory.getLogger(BotService.class);
 
     public BotService(Clock clock, LineMessagingClient client, RoomRepository roomRepository,
+                      RisingKeywordRepository risingKeywordRepository,
                       Random random) {
         this.clock = clock;
         this.client = client;
         this.roomRepository = roomRepository;
+        this.risingKeywordRepository = risingKeywordRepository;
         this.random = random;
 
         initCommands();
@@ -55,21 +67,22 @@ public class BotService {
                 new Command("오늘 무슨 요일?", "-", ignored -> todayTextMessage()),
                 new Command("내일 무슨 요일?", "-", ignored -> tomorrowTextMessage()),
                 new Command("모레 무슨 요일?", "-", ignored -> dayAfterTomorrowTextMessage()),
-                new Command("월요송", "-", ignored -> spongebobVideoMessage())
+                new Command("월요송", "-", ignored -> mondaySongVideoMessage()),
+                new Command("핫해", "-", ignored -> risingKeywordsMessage())
         );
     }
 
-    public Optional<Message> handle(String from, String text) {
-        String upperText = text.toUpperCase();
+    public Message handleTextMessage(String from, TextMessageContent textMessageContent) {
+        String upperText = textMessageContent.getText().toUpperCase();
         if ("HELP".equals(upperText)) {
-            return Optional.of(helpTextMessage());
+            return helpTextMessage();
         }
         for (Command command : commands) {
             if (command.getName().equals(upperText)) {
-                return Optional.of(command.getFunction().apply(from));
+                return command.getFunction().apply(from);
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     private TextMessage helpTextMessage() {
@@ -109,12 +122,44 @@ public class BotService {
     }
 
     public void pushMondayMessages() {
-        pushMessages(spongebobVideoMessage());
+        pushMessages(mondaySongVideoMessage());
     }
 
-    private VideoMessage spongebobVideoMessage() {
+    private VideoMessage mondaySongVideoMessage() {
         return new VideoMessage("https://vt.media.tumblr.com/tumblr_p4nukupwiG1x76q2h.mp4",
                                 "https://78.media.tumblr.com/3677c5e4ba151cc86d19999e0d2e8855/tumblr_p4nuzyVKwJ1x76q2ho1_r1_1280.png");
+    }
+
+    private Message risingKeywordsMessage() {
+        RisingKeywords risingKeywords = risingKeywordRepository.findLatestOne();
+        return new TextMessage(
+                String.format("인기검색어 %s\n", risingKeywords.getTime()) +
+                String.join("\n",
+                            IntStream.range(0, risingKeywords.getKeywords().size())
+                                     .mapToObj(i -> String
+                                             .format("%d. %s: https://search.naver.com/search.naver?query=%s",
+                                                     i + 1, risingKeywords.getKeywords().get(i),
+                                                     encodeURIComponent(risingKeywords.getKeywords().get(i))))
+                                     .collect(toImmutableList()))
+        );
+    }
+
+    public static String encodeURIComponent(String s) {
+        String result;
+
+        try {
+            result = URLEncoder.encode(s, "UTF-8")
+                               .replaceAll("\\+", "%20")
+                               .replaceAll("\\%21", "!")
+                               .replaceAll("\\%27", "'")
+                               .replaceAll("\\%28", "(")
+                               .replaceAll("\\%29", ")")
+                               .replaceAll("\\%7E", "~");
+        } catch (UnsupportedEncodingException e) {
+            result = s;
+        }
+
+        return result;
     }
 
     private TextMessage workLateAtNight() {

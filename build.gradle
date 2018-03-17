@@ -34,4 +34,10 @@ dependencies {
     compile('com.linecorp.bot:line-bot-servlet:1.15.0')
     compile('com.linecorp.bot:line-bot-model:1.15.0')
     compile('com.linecorp.bot:line-bot-api-client:1.15.0')
+
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+
+    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    compile group: 'org.jsoup', name: 'jsoup', version: '1.11.2'
 }
