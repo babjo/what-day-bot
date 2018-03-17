@@ -129,7 +129,7 @@ public class BotService {
     }
 
     private Message risingKeywordsMessage() {
-        RisingKeywords risingKeywords = risingKeywordRepository.findLatestOne();
+        RisingKeywords risingKeywords = risingKeywordRepository.findLatestRisingKeywords();
         return new TextMessage(
                 String.format("인기검색어 %s\n", risingKeywords.getTime()) +
                 String.join("\n",

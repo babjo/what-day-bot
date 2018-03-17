@@ -37,14 +37,14 @@ public class CachedRisingKeywordRepository implements RisingKeywordRepository {
         this.crawler = risingKeywordCrawler;
         this.urlShortener = urlShortener;
 
-        executorService.scheduleAtFixedRate(this::refresh, 1, 1, TimeUnit.MINUTES);
+        executorService.scheduleAtFixedRate(this::refresh, 60, 60, TimeUnit.SECONDS);
 
         // Init
         refresh();
     }
 
     @Override
-    public RisingKeywords findLatestOne() {
+    public RisingKeywords findLatestRisingKeywords() {
         return latest;
     }
 
@@ -76,7 +76,7 @@ public class CachedRisingKeywordRepository implements RisingKeywordRepository {
         }
     }
 
-    public static String encodeURIComponent(String s) {
+    private static String encodeURIComponent(String s) {
         String result;
         try {
             result = URLEncoder.encode(s, "UTF-8")
