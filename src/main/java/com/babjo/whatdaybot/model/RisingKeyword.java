@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot.repository;
+package com.babjo.whatdaybot.model;
 
 import lombok.Data;
 

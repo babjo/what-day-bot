@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot;
+package com.babjo.whatdaybot.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

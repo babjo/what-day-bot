@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot.utils;
+package com.babjo.whatdaybot.naver;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
