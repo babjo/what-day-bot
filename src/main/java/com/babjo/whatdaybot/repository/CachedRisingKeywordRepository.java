@@ -17,8 +17,10 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.babjo.whatdaybot.utils.RisingKeywordCrawler;
-import com.babjo.whatdaybot.utils.URLShortener;
+import com.babjo.whatdaybot.model.RisingKeyword;
+import com.babjo.whatdaybot.model.RisingKeywords;
+import com.babjo.whatdaybot.utils.RisingKeywordUtils;
+import com.babjo.whatdaybot.utils.URLUtils;
 
 public class CachedRisingKeywordRepository implements RisingKeywordRepository {
 
@@ -27,12 +29,12 @@ public class CachedRisingKeywordRepository implements RisingKeywordRepository {
     private final static Logger logger = LoggerFactory.getLogger(CachedRisingKeywordRepository.class);
 
     private final Clock clock;
-    private final RisingKeywordCrawler crawler;
-    private final URLShortener urlShortener;
+    private final RisingKeywordUtils crawler;
+    private final URLUtils urlShortener;
 
     public CachedRisingKeywordRepository(
-            ScheduledExecutorService executorService, RisingKeywordCrawler risingKeywordCrawler, Clock clock,
-            URLShortener urlShortener) {
+            ScheduledExecutorService executorService, RisingKeywordUtils risingKeywordCrawler, Clock clock,
+            URLUtils urlShortener) {
         this.clock = clock;
         this.crawler = risingKeywordCrawler;
         this.urlShortener = urlShortener;

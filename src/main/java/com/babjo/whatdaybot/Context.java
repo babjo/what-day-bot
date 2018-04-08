@@ -16,19 +16,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.babjo.whatdaybot.command.CommandExecutor;
 import com.babjo.whatdaybot.repository.CachedRisingKeywordRepository;
 import com.babjo.whatdaybot.repository.RisingKeywordRepository;
 import com.babjo.whatdaybot.repository.RoomRepository;
-import com.babjo.whatdaybot.utils.RisingKeywordCrawler;
-import com.babjo.whatdaybot.utils.URLShortener;
+import com.babjo.whatdaybot.service.BotService;
+import com.babjo.whatdaybot.utils.RisingKeywordUtils;
+import com.babjo.whatdaybot.utils.URLUtils;
 
 import com.linecorp.bot.client.LineMessagingClient;
 
 @Configuration
 @EnableScheduling
-public class Config {
+public class Context {
 
-    private static final Logger logger = LoggerFactory.getLogger(Config.class);
+    private static final Logger logger = LoggerFactory.getLogger(Context.class);
 
     @Bean
     @Primary
@@ -41,7 +43,9 @@ public class Config {
     public BotService botService(Clock clock, RoomRepository roomRepository,
                                  RisingKeywordRepository risingKeywordRepository,
                                  LineMessagingClient client) {
-        return new BotService(clock, client, roomRepository, risingKeywordRepository, new Random());
+        return new BotService(client, roomRepository,
+                              new CommandExecutor(roomRepository, risingKeywordRepository, clock),
+                              new Random());
     }
 
     @Bean
@@ -51,13 +55,13 @@ public class Config {
 
     @Bean
     @ConfigurationProperties(prefix = "naver.openapi")
-    public URLShortener urlShortener() {
-        return new URLShortener();
+    public URLUtils urlUtils() {
+        return new URLUtils();
     }
 
     @Bean
-    public RisingKeywordRepository risingKeywordRepository(Clock clock, URLShortener urlShortener) {
+    public RisingKeywordRepository risingKeywordRepository(Clock clock, URLUtils urlUtils) {
         return new CachedRisingKeywordRepository(Executors.newScheduledThreadPool(1),
-                                                 new RisingKeywordCrawler(), clock, urlShortener);
+                                                 new RisingKeywordUtils(), clock, urlUtils);
     }
 }

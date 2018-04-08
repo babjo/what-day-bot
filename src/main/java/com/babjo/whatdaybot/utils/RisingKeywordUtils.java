@@ -14,9 +14,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RisingKeywordCrawler {
+public class RisingKeywordUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(RisingKeywordCrawler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RisingKeywordUtils.class);
 
     public List<String> doCrawling(LocalDateTime dateTime) throws IOException {
         Document doc = Jsoup.connect("https://datalab.naver.com/keyword/realtimeList.naver?datetime=" + dateTime

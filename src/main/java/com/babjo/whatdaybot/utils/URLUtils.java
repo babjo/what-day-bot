@@ -14,13 +14,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 
-public class URLShortener {
+public class URLUtils {
 
     private String clientId;
     private String clientSecret;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final static Logger logger = LoggerFactory.getLogger(URLShortener.class);
+    private final static Logger logger = LoggerFactory.getLogger(URLUtils.class);
 
     public String shorten(String url) {
         try {

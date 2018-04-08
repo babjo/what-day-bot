@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot.repository;
+package com.babjo.whatdaybot.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
