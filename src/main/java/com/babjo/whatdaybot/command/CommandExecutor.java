@@ -26,7 +26,8 @@ public class CommandExecutor {
                                     new TomorrowCommand(clock),
                                     new DayAfterTomorrowCommand(clock),
                                     new MondaySongCommand(),
-                                    new RisingKeywordsCommand(risingKeywordRepository));
+                                    new RisingKeywordsCommand(risingKeywordRepository),
+                                    new AllRoomStateCommand(roomRepository));
     }
 
     public Message execute(MessageEvent<MessageContent> event) {

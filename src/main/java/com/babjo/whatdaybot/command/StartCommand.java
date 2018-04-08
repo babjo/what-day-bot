@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StartCommand implements Command {
 
-    private final Pattern pattern = Pattern.compile("START");
+    private final Pattern pattern = Pattern.compile("START", Pattern.CASE_INSENSITIVE);
     private final RoomRepository roomRepository;
 
     @Override
