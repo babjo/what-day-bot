@@ -9,8 +9,8 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,6 +23,7 @@ import com.babjo.whatdaybot.repository.RoomRepository;
 import com.babjo.whatdaybot.service.BotService;
 import com.babjo.whatdaybot.utils.RisingKeywordUtils;
 import com.babjo.whatdaybot.utils.URLUtils;
+import com.zaxxer.hikari.HikariDataSource;
 
 import com.linecorp.bot.client.LineMessagingClient;
 
@@ -35,8 +36,13 @@ public class Context {
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource dataSource() {
-        return DataSourceBuilder.create().build();
+    public DataSourceProperties dataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean
+    public DataSource dataSource(DataSourceProperties properties) {
+        return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
     @Bean
