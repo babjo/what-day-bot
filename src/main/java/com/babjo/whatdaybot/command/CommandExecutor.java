@@ -3,7 +3,7 @@ package com.babjo.whatdaybot.command;
 import java.time.Clock;
 import java.util.List;
 
-import com.babjo.whatdaybot.repository.RisingKeywordRepository;
+import com.babjo.whatdaybot.naver.PeriodicRisingKeywordCrawler;
 import com.babjo.whatdaybot.repository.RoomRepository;
 import com.google.common.collect.ImmutableList;
 
@@ -16,7 +16,7 @@ public class CommandExecutor {
     private final List<Command> commands;
 
     public CommandExecutor(RoomRepository roomRepository,
-                           RisingKeywordRepository risingKeywordRepository,
+                           PeriodicRisingKeywordCrawler periodicRisingKeywordCrawler,
                            Clock clock) {
         commands = ImmutableList.of(new StartCommand(roomRepository),
                                     new StopCommand(roomRepository),
@@ -26,7 +26,7 @@ public class CommandExecutor {
                                     new TomorrowCommand(clock),
                                     new DayAfterTomorrowCommand(clock),
                                     new MondaySongCommand(),
-                                    new RisingKeywordsCommand(risingKeywordRepository),
+                                    new RisingKeywordsCommand(periodicRisingKeywordCrawler),
                                     new AllRoomStateCommand(roomRepository));
     }
 

@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot.utils;
+package com.babjo.whatdaybot.naver;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -14,13 +14,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 
-public class URLUtils {
+public class URLShortener {
 
     private String clientId;
     private String clientSecret;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final static Logger logger = LoggerFactory.getLogger(URLUtils.class);
+    private final static Logger logger = LoggerFactory.getLogger(URLShortener.class);
 
     public String shorten(String url) {
         try {

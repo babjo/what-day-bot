@@ -17,12 +17,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.babjo.whatdaybot.command.CommandExecutor;
-import com.babjo.whatdaybot.repository.CachedRisingKeywordRepository;
-import com.babjo.whatdaybot.repository.RisingKeywordRepository;
+import com.babjo.whatdaybot.naver.PeriodicRisingKeywordCrawler;
+import com.babjo.whatdaybot.naver.RisingKeywordCrawler;
+import com.babjo.whatdaybot.naver.URLShortener;
 import com.babjo.whatdaybot.repository.RoomRepository;
 import com.babjo.whatdaybot.service.BotService;
-import com.babjo.whatdaybot.utils.RisingKeywordUtils;
-import com.babjo.whatdaybot.utils.URLUtils;
 import com.zaxxer.hikari.HikariDataSource;
 
 import com.linecorp.bot.client.LineMessagingClient;
@@ -47,10 +46,10 @@ public class Context {
 
     @Bean
     public BotService botService(Clock clock, RoomRepository roomRepository,
-                                 RisingKeywordRepository risingKeywordRepository,
+                                 PeriodicRisingKeywordCrawler periodicRisingKeywordCrawler,
                                  LineMessagingClient client) {
         return new BotService(client, roomRepository,
-                              new CommandExecutor(roomRepository, risingKeywordRepository, clock),
+                              new CommandExecutor(roomRepository, periodicRisingKeywordCrawler, clock),
                               new Random());
     }
 
@@ -61,13 +60,17 @@ public class Context {
 
     @Bean
     @ConfigurationProperties(prefix = "naver.openapi")
-    public URLUtils urlUtils() {
-        return new URLUtils();
+    public URLShortener urlShortener() {
+        return new URLShortener();
     }
 
     @Bean
-    public RisingKeywordRepository risingKeywordRepository(Clock clock, URLUtils urlUtils) {
-        return new CachedRisingKeywordRepository(Executors.newScheduledThreadPool(1),
-                                                 new RisingKeywordUtils(), clock, urlUtils);
+    public PeriodicRisingKeywordCrawler periodicRisingKeywordCrawler(Clock clock, URLShortener urlUtils) {
+        PeriodicRisingKeywordCrawler crawler = new PeriodicRisingKeywordCrawler(
+                Executors.newScheduledThreadPool(1),
+                new RisingKeywordCrawler(), clock, urlUtils);
+
+        crawler.start();
+        return crawler;
     }
 }

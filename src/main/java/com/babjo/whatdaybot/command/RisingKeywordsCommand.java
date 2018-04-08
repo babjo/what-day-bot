@@ -2,11 +2,13 @@ package com.babjo.whatdaybot.command;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import com.babjo.whatdaybot.model.RisingKeywords;
-import com.babjo.whatdaybot.repository.RisingKeywordRepository;
+import com.babjo.whatdaybot.model.RisingKeyword;
+import com.babjo.whatdaybot.naver.PeriodicRisingKeywordCrawler;
 
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.MessageContent;
@@ -19,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class RisingKeywordsCommand implements Command {
 
     private final Pattern pattern = Pattern.compile("핫해");
-    private final RisingKeywordRepository risingKeywordRepository;
+    private final PeriodicRisingKeywordCrawler periodicRisingKeywordCrawler;
 
     @Override
     public Pattern getPattern() {
@@ -28,16 +30,17 @@ public class RisingKeywordsCommand implements Command {
 
     @Override
     public Message execute(MessageEvent<MessageContent> event) {
-        RisingKeywords risingKeywords = risingKeywordRepository.findLatestRisingKeywords();
+        List<RisingKeyword> keywords = periodicRisingKeywordCrawler.getLatestRisingKeywords();
+        LocalDateTime time = periodicRisingKeywordCrawler.getLatestRefreshTime();
         return new TextMessage(
-                String.format("인기검색어 %s\n", risingKeywords.getTime()) +
+                String.format("인기검색어 %s\n", time) +
                 String.join("\n",
                             IntStream.range(0, 10)
                                      .mapToObj(i -> String
                                              .format("%d. %s: %s",
                                                      i + 1,
-                                                     risingKeywords.getKeywords().get(i).getText(),
-                                                     risingKeywords.getKeywords().get(i).getUrl()))
+                                                     keywords.get(i).getText(),
+                                                     keywords.get(i).getUrl()))
                                      .collect(toImmutableList()))
         );
     }
