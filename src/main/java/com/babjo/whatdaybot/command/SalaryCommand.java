@@ -5,7 +5,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
-import com.babjo.whatdaybot.utils.LocalDateTimeUtils;
+import com.babjo.whatdaybot.utils.SalaryDateUtils;
 
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.MessageContent;
@@ -28,7 +28,7 @@ public class SalaryCommand implements Command {
     @Override
     public Message execute(MessageEvent<MessageContent> event) {
         LocalDateTime now = LocalDateTime.now(clock);
-        LocalDateTime nextSalary = LocalDateTimeUtils.getNextSalary(clock);
+        LocalDateTime nextSalary = SalaryDateUtils.getNextSalary(now);
 
         System.out.println(now.toString());
         System.out.println(nextSalary.toString());
