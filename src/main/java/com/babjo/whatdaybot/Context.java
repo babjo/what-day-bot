@@ -7,8 +7,6 @@ import java.util.concurrent.Executors;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,12 +14,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.babjo.whatdaybot.naver.openapi.URLShortenerClient;
+import com.babjo.whatdaybot.crawler.PeriodicRisingKeywordCrawler;
+import com.babjo.whatdaybot.crawler.RisingKeywordCrawler;
 import com.babjo.whatdaybot.command.CommandExecutor;
-import com.babjo.whatdaybot.naver.PeriodicRisingKeywordCrawler;
-import com.babjo.whatdaybot.naver.RisingKeywordCrawler;
-import com.babjo.whatdaybot.naver.URLShortener;
 import com.babjo.whatdaybot.repository.RoomRepository;
-import com.babjo.whatdaybot.service.BotService;
+import com.babjo.whatdaybot.storage.BotService;
 import com.zaxxer.hikari.HikariDataSource;
 
 import com.linecorp.bot.client.LineMessagingClient;
@@ -29,8 +27,6 @@ import com.linecorp.bot.client.LineMessagingClient;
 @Configuration
 @EnableScheduling
 public class Context {
-
-    private static final Logger logger = LoggerFactory.getLogger(Context.class);
 
     @Bean
     @Primary
@@ -60,15 +56,16 @@ public class Context {
 
     @Bean
     @ConfigurationProperties(prefix = "naver.openapi")
-    public URLShortener urlShortener() {
-        return new URLShortener();
+    public URLShortenerClient urlShortenerClient() {
+        return new URLShortenerClient();
     }
 
     @Bean
-    public PeriodicRisingKeywordCrawler periodicRisingKeywordCrawler(Clock clock, URLShortener urlUtils) {
+    public PeriodicRisingKeywordCrawler periodicRisingKeywordCrawler(Clock clock,
+                                                                     URLShortenerClient urlShortenerClient) {
         PeriodicRisingKeywordCrawler crawler = new PeriodicRisingKeywordCrawler(
                 Executors.newScheduledThreadPool(1),
-                new RisingKeywordCrawler(), clock, urlUtils);
+                new RisingKeywordCrawler(), clock, urlShortenerClient);
 
         crawler.start();
         return crawler;

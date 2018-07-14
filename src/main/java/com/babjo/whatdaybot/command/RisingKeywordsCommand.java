@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import com.babjo.whatdaybot.model.RisingKeyword;
-import com.babjo.whatdaybot.naver.PeriodicRisingKeywordCrawler;
+import com.babjo.whatdaybot.crawler.PeriodicRisingKeywordCrawler;
 
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.MessageContent;
