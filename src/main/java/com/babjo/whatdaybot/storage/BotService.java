@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot.service;
+package com.babjo.whatdaybot.storage;
 
 import java.util.List;
 import java.util.Random;

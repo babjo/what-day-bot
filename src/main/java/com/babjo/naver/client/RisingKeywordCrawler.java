@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot.naver;
+package com.babjo.naver.client;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 

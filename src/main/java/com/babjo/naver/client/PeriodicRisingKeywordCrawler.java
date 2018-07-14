@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot.naver;
+package com.babjo.naver.client;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
@@ -27,7 +27,7 @@ public class PeriodicRisingKeywordCrawler {
     private final Clock clock;
     private final ScheduledExecutorService executorService;
     private final RisingKeywordCrawler risingKeywordCrawler;
-    private final URLShortener urlShortener;
+    private final URLShortenerApi urlShortenerApiClient;
 
     private LocalDateTime latestRefreshTime;
     private List<RisingKeyword> latestRisingKeywords;
@@ -36,11 +36,11 @@ public class PeriodicRisingKeywordCrawler {
             ScheduledExecutorService executorService,
             RisingKeywordCrawler risingKeywordCrawler,
             Clock clock,
-            URLShortener urlShortener) {
+            URLShortenerApi urlShortenerApiClient) {
         this.executorService = executorService;
         this.clock = clock;
         this.risingKeywordCrawler = risingKeywordCrawler;
-        this.urlShortener = urlShortener;
+        this.urlShortenerApiClient = urlShortenerApiClient;
     }
 
     public void start() {
@@ -60,7 +60,7 @@ public class PeriodicRisingKeywordCrawler {
 
                     latestRefreshTime = dateTime;
                     latestRisingKeywords = keywords.stream().map(
-                            keyword -> new RisingKeyword(keyword.getText(), urlShortener
+                            keyword -> new RisingKeyword(keyword.getText(), urlShortenerApiClient
                                     .shorten(keyword.getUrl()))).collect(toImmutableList());
 
                     logger.info("Success refreshing: {}", latestRisingKeywords);

@@ -3,7 +3,7 @@ package com.babjo.whatdaybot.command;
 import java.time.Clock;
 import java.util.List;
 
-import com.babjo.whatdaybot.naver.PeriodicRisingKeywordCrawler;
+import com.babjo.naver.client.PeriodicRisingKeywordCrawler;
 import com.babjo.whatdaybot.repository.RoomRepository;
 import com.google.common.collect.ImmutableList;
 
