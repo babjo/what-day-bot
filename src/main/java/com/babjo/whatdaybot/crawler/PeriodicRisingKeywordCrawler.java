@@ -1,4 +1,4 @@
-package com.babjo.whatdaybot.naver;
+package com.babjo.whatdaybot.crawler;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.babjo.whatdaybot.naver.openapi.URLShortenerClient;
 import com.babjo.whatdaybot.model.RisingKeyword;
 
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class PeriodicRisingKeywordCrawler {
     private final Clock clock;
     private final ScheduledExecutorService executorService;
     private final RisingKeywordCrawler risingKeywordCrawler;
-    private final URLShortener urlShortener;
+    private final URLShortenerClient urlShortenerClient;
 
     private LocalDateTime latestRefreshTime;
     private List<RisingKeyword> latestRisingKeywords;
@@ -36,11 +37,11 @@ public class PeriodicRisingKeywordCrawler {
             ScheduledExecutorService executorService,
             RisingKeywordCrawler risingKeywordCrawler,
             Clock clock,
-            URLShortener urlShortener) {
+            URLShortenerClient urlShortenerClient) {
         this.executorService = executorService;
         this.clock = clock;
         this.risingKeywordCrawler = risingKeywordCrawler;
-        this.urlShortener = urlShortener;
+        this.urlShortenerClient = urlShortenerClient;
     }
 
     public void start() {
@@ -60,7 +61,7 @@ public class PeriodicRisingKeywordCrawler {
 
                     latestRefreshTime = dateTime;
                     latestRisingKeywords = keywords.stream().map(
-                            keyword -> new RisingKeyword(keyword.getText(), urlShortener
+                            keyword -> new RisingKeyword(keyword.getText(), urlShortenerClient
                                     .shorten(keyword.getUrl()))).collect(toImmutableList());
 
                     logger.info("Success refreshing: {}", latestRisingKeywords);

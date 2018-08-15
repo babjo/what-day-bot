@@ -1,30 +1,31 @@
 package com.babjo.whatdaybot.utils;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class SalaryDateUtils {
 
-    public static LocalDateTime getNextSalary(LocalDateTime now) {
-        return adjustWeekend(calcNextSalary(now));
-    }
-
-    private static LocalDateTime calcNextSalary(LocalDateTime now) {
-        if (now.getDayOfMonth() >= 25) {
-            now = now.plusMonths(1);
-        }
-
-        return now.withDayOfMonth(25).withHour(0).withMinute(0).withSecond(0).withNano(0);
-    }
-
-    private static LocalDateTime adjustWeekend(LocalDateTime nextSalary) {
-        switch (nextSalary.getDayOfWeek()) {
+    public static LocalDate getSalaryDate(int year, int month) {
+        LocalDate salaryDate = LocalDate.of(year, month, 25);
+        switch (salaryDate.getDayOfWeek()) {
             case SATURDAY:
-                return nextSalary.minusDays(2);
+                return salaryDate.minusDays(1);
             case SUNDAY:
-                return nextSalary.minusDays(1);
+                return salaryDate.minusDays(2);
             default:
-                return nextSalary;
+                return salaryDate;
         }
     }
 
+    public static LocalDate getNextSalaryDate(LocalDate now) {
+        LocalDate salaryDateOfThisMonth = getSalaryDate(now.getYear(), now.getMonthValue());
+        if (now.isAfter(salaryDateOfThisMonth)) {
+            return getSalaryDateOfNextMonth(now);
+        }
+        return salaryDateOfThisMonth;
+    }
+
+    private static LocalDate getSalaryDateOfNextMonth(LocalDate now) {
+        LocalDate nextMonth = now.plusMonths(1);
+        return getSalaryDate(nextMonth.getYear(), nextMonth.getMonthValue());
+    }
 }

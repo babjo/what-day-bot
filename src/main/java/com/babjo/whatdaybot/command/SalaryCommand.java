@@ -2,7 +2,9 @@ package com.babjo.whatdaybot.command;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.regex.Pattern;
 
 import com.babjo.whatdaybot.utils.SalaryDateUtils;
@@ -27,11 +29,11 @@ public class SalaryCommand implements Command {
 
     @Override
     public Message execute(MessageEvent<MessageContent> event) {
-        LocalDateTime now = LocalDateTime.now(clock);
-        LocalDateTime nextSalary = SalaryDateUtils.getNextSalary(now);
+        LocalDate date = LocalDate.now(clock);
+        LocalTime time = LocalTime.now(clock);
 
-        System.out.println(now.toString());
-        System.out.println(nextSalary.toString());
+        LocalDateTime now = LocalDateTime.of(date, time);
+        LocalDateTime nextSalary = LocalDateTime.of(SalaryDateUtils.getNextSalaryDate(date), LocalTime.MIN);
 
         Duration duration = Duration.between(now, nextSalary);
         long days = duration.toDays();
