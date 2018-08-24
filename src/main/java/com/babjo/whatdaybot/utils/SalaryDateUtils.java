@@ -18,7 +18,7 @@ public class SalaryDateUtils {
 
     public static LocalDate getNextSalaryDate(LocalDate now) {
         LocalDate salaryDateOfThisMonth = getSalaryDate(now.getYear(), now.getMonthValue());
-        if (now.isAfter(salaryDateOfThisMonth)) {
+        if (now.isEqual(salaryDateOfThisMonth) || now.isAfter(salaryDateOfThisMonth)) {
             return getSalaryDateOfNextMonth(now);
         }
         return salaryDateOfThisMonth;
