@@ -29,6 +29,7 @@ public class SalaryDateUtilsTest {
 
     @Test
     public void Should_GetSalaryDateOfNextMonth_WhenSalaryDateOfThisMonthIsPassed() {
-        assertThat(getNextSalaryDate(LocalDate.of(2018, 7, 26))).isEqualTo(LocalDate.of(2018, 8, 24));
+        assertThat(getNextSalaryDate(LocalDate.of(2018, 8, 24))).isEqualTo(LocalDate.of(2018, 9, 25));
     }
+
 }
