@@ -17,9 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.babjo.whatdaybot.model.RisingKeyword;
 import com.babjo.whatdaybot.utils.URIUtils;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class RisingKeywordCrawler {
 
     private static final Logger logger = LoggerFactory.getLogger(RisingKeywordCrawler.class);

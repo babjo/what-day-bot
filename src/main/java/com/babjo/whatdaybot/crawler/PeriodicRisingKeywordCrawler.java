@@ -15,12 +15,9 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.babjo.whatdaybot.naver.openapi.URLShortenerClient;
 import com.babjo.whatdaybot.model.RisingKeyword;
+import com.babjo.whatdaybot.naver.openapi.URLShortenerClient;
 
-import lombok.Getter;
-
-@Getter
 public class PeriodicRisingKeywordCrawler {
 
     private final static Logger logger = LoggerFactory.getLogger(PeriodicRisingKeywordCrawler.class);
@@ -74,4 +71,11 @@ public class PeriodicRisingKeywordCrawler {
         }
     }
 
+    public LocalDateTime getLatestRefreshTime() {
+        return latestRefreshTime;
+    }
+
+    public List<RisingKeyword> getLatestRisingKeywords() {
+        return latestRisingKeywords;
+    }
 }

@@ -13,13 +13,12 @@ import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class AllRoomStateCommand implements Command {
 
     private final Pattern pattern = Pattern.compile("RoomState", Pattern.CASE_INSENSITIVE);
     private final RoomRepository roomRepository;
+
+    public AllRoomStateCommand(RoomRepository roomRepository) {this.roomRepository = roomRepository;}
 
     @Override
     public Pattern getPattern() {

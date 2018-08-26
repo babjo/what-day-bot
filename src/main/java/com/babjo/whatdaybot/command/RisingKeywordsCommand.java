@@ -15,13 +15,15 @@ import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class RisingKeywordsCommand implements Command {
 
     private final Pattern pattern = Pattern.compile("핫해");
     private final PeriodicRisingKeywordCrawler periodicRisingKeywordCrawler;
+
+    public RisingKeywordsCommand(
+            PeriodicRisingKeywordCrawler periodicRisingKeywordCrawler) {
+        this.periodicRisingKeywordCrawler = periodicRisingKeywordCrawler;
+    }
 
     @Override
     public Pattern getPattern() {

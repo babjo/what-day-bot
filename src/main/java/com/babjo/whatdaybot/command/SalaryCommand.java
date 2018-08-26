@@ -14,13 +14,12 @@ import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class SalaryCommand implements Command {
 
     private final Pattern pattern = Pattern.compile("(월급좀|월급\\?)");
     private final Clock clock;
+
+    public SalaryCommand(Clock clock) {this.clock = clock;}
 
     @Override
     public Pattern getPattern() {

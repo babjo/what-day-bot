@@ -19,9 +19,6 @@ import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class BotService {
 
     private final LineMessagingClient client;
@@ -30,6 +27,14 @@ public class BotService {
     private final Random random;
 
     private final static Logger logger = LoggerFactory.getLogger(BotService.class);
+
+    public BotService(LineMessagingClient client, RoomRepository roomRepository,
+                      CommandExecutor commandExecutor, Random random) {
+        this.client = client;
+        this.roomRepository = roomRepository;
+        this.commandExecutor = commandExecutor;
+        this.random = random;
+    }
 
     public Message handleEvent(MessageEvent<MessageContent> event) {
         return commandExecutor.execute(event);

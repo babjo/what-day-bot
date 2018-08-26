@@ -9,13 +9,12 @@ import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class TomorrowCommand implements Command {
 
     private final Pattern pattern = Pattern.compile("내일 무슨 요일\\?");
     private final Clock clock;
+
+    public TomorrowCommand(Clock clock) {this.clock = clock;}
 
     @Override
     public Pattern getPattern() {

@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.Data;
-
 public class URLShortenerClient {
 
     private String clientId;
@@ -64,17 +62,39 @@ public class URLShortenerClient {
         }
     }
 
-    @Data
     static class Response {
         private String message;
         private Result result;
         private int code;
 
-        @Data
+        public String getMessage() {
+            return message;
+        }
+
+        public Result getResult() {
+            return result;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
         static class Result {
             private String hash;
             private String url;
             private String orgUrl;
+
+            public String getHash() {
+                return hash;
+            }
+
+            public String getUrl() {
+                return url;
+            }
+
+            public String getOrgUrl() {
+                return orgUrl;
+            }
         }
     }
 
