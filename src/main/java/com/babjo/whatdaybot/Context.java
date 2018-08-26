@@ -19,7 +19,7 @@ import com.babjo.whatdaybot.crawler.PeriodicRisingKeywordCrawler;
 import com.babjo.whatdaybot.crawler.RisingKeywordCrawler;
 import com.babjo.whatdaybot.command.CommandExecutor;
 import com.babjo.whatdaybot.repository.RoomRepository;
-import com.babjo.whatdaybot.storage.BotService;
+import com.babjo.whatdaybot.service.BotService;
 import com.zaxxer.hikari.HikariDataSource;
 
 import com.linecorp.bot.client.LineMessagingClient;
