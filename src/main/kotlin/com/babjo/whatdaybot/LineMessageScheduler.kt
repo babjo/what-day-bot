@@ -23,9 +23,8 @@ class LineMessageScheduler(private val clock: Clock,
     private val logger = LoggerFactory.getLogger(LineMessageScheduler::class.java)
 
     @Scheduled(cron = "0 30 09 ? * MON", zone = "Asia/Seoul")
-    fun pushMondayMessage() {
+    fun pushMondaySongMessage() {
         pushMessage(GetMondaySong().execute())
-        pushMessage(GetToday(clock).execute())
     }
 
     @Scheduled(cron = "0 30 09 ? * MON-FRI", zone = "Asia/Seoul")
