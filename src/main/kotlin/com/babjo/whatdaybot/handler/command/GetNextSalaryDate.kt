@@ -1,10 +1,11 @@
 package com.babjo.whatdaybot.handler.command
 
+import com.babjo.whatdaybot.model.Holiday
 import com.linecorp.bot.model.message.Message
 import com.linecorp.bot.model.message.TextMessage
 import java.time.*
 
-class GetNextSalaryDate(private val clock: Clock) : Command {
+class GetNextSalaryDate(private val clock: Clock, private val holidays: List<Holiday> = emptyList()) : Command {
     override fun execute(): Message {
         val date = LocalDate.now(clock)
         val time = LocalTime.now(clock)
@@ -32,12 +33,31 @@ class GetNextSalaryDate(private val clock: Clock) : Command {
     }
 
     fun getSalaryDate(year: Int, month: Int): LocalDate {
-        val salaryDate = LocalDate.of(year, month, 25)
+        var salaryDate = LocalDate.of(year, month, 25)
+        while (!adjustDate(salaryDate).isEqual(salaryDate)) {
+            salaryDate = adjustDate(salaryDate)
+        }
+        return salaryDate
+    }
+
+    private fun adjustDate(salaryDate: LocalDate): LocalDate = adjustWithHolidays(adjustWithWeekends(salaryDate))
+
+    private fun adjustWithWeekends(salaryDate: LocalDate): LocalDate {
         return when (salaryDate.dayOfWeek) {
             DayOfWeek.SATURDAY -> salaryDate.minusDays(1)
             DayOfWeek.SUNDAY -> salaryDate.minusDays(2)
             else -> salaryDate
         }
+    }
+
+    private fun adjustWithHolidays(salaryDate: LocalDate): LocalDate {
+        var adjusted: LocalDate = salaryDate
+        for (holiday in holidays.reversed()) {
+            if (adjusted.isEqual(holiday.date)) {
+                adjusted = adjusted.minusDays(1)
+            }
+        }
+        return adjusted
     }
 
 

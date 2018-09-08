@@ -5,6 +5,7 @@ import com.babjo.whatdaybot.crawler.RisingKeywordCrawler
 import com.babjo.whatdaybot.handler.command.*
 import com.babjo.whatdaybot.handler.command.factory.CommandFactory
 import com.babjo.whatdaybot.handler.command.factory.TextPatternRule
+import com.babjo.whatdaybot.model.Holiday
 import com.babjo.whatdaybot.naver.openapi.URLShortenerClient
 import com.babjo.whatdaybot.repository.RoomRepository
 import com.linecorp.bot.client.LineMessagingClient
@@ -15,8 +16,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import java.time.Clock
+import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
+import java.util.Arrays.asList
 import java.util.concurrent.Executors
 import javax.sql.DataSource
 
@@ -42,7 +45,9 @@ class Context {
     }
 
     @Bean
-    fun commandFactory(roomRepository: RoomRepository, clock: Clock, periodicRisingKeywordCrawler: PeriodicRisingKeywordCrawler): CommandFactory {
+    fun commandFactory(roomRepository: RoomRepository, clock: Clock,
+                       periodicRisingKeywordCrawler: PeriodicRisingKeywordCrawler,
+                       holidays: List<Holiday>): CommandFactory {
         val factory = CommandFactory()
 
         factory.addCreationRule(TextPatternRule("RoomState") { GetAllRoomState(roomRepository) })
@@ -51,7 +56,7 @@ class Context {
         factory.addCreationRule(TextPatternRule("월요송") { GetMondaySong() })
 
         factory.addCreationRule(TextPatternRule("핫해") { GetRisingKeywords(periodicRisingKeywordCrawler) })
-        factory.addCreationRule(TextPatternRule("(월급좀|월급\\?)") { GetNextSalaryDate(clock) })
+        factory.addCreationRule(TextPatternRule("(월급좀|월급\\?)") { GetNextSalaryDate(clock, holidays) })
 
         factory.addCreationRule(TextPatternRule("start") { TurnOnPushMessages(it, roomRepository) })
         factory.addCreationRule(TextPatternRule("stop") { TurnOffPushMessages(it, roomRepository) })
@@ -80,4 +85,14 @@ class Context {
         crawler.start()
         return crawler
     }
+
+    @Bean
+    fun holidays(): List<Holiday> = asList(
+            Holiday("추석(연휴)", LocalDate.of(2018, 9, 23)),
+            Holiday("추석(연휴)", LocalDate.of(2018, 9, 24)),
+            Holiday("추석(연휴)", LocalDate.of(2018, 9, 25)),
+            Holiday("추석(연휴)", LocalDate.of(2018, 9, 26)),
+            Holiday("개천절", LocalDate.of(2018, 10, 3)),
+            Holiday("한글날", LocalDate.of(2018, 10, 9))
+    )
 }
