@@ -93,6 +93,23 @@ class Context {
             Holiday("추석(연휴)", LocalDate.of(2018, 9, 25)),
             Holiday("추석(연휴)", LocalDate.of(2018, 9, 26)),
             Holiday("개천절", LocalDate.of(2018, 10, 3)),
-            Holiday("한글날", LocalDate.of(2018, 10, 9))
+            Holiday("한글날", LocalDate.of(2018, 10, 9)),
+            Holiday("크리스마스", LocalDate.of(2018, 12, 25)),
+            Holiday("신정", LocalDate.of(2019, 1, 1)),
+            Holiday("설날", LocalDate.of(2019, 2, 4)),
+            Holiday("설날", LocalDate.of(2019, 2, 5)),
+            Holiday("설날", LocalDate.of(2019, 2, 6)),
+            Holiday("삼일절", LocalDate.of(2019, 3, 1)),
+            Holiday("어린이날", LocalDate.of(2019, 5, 5)),
+            Holiday("대체공휴일", LocalDate.of(2019, 5, 6)),
+            Holiday("부처님오신날", LocalDate.of(2019, 5, 12)),
+            Holiday("현충일", LocalDate.of(2019, 6, 6)),
+            Holiday("광복절", LocalDate.of(2019, 8, 15)),
+            Holiday("추석", LocalDate.of(2019, 9, 12)),
+            Holiday("추석", LocalDate.of(2019, 9, 13)),
+            Holiday("추석", LocalDate.of(2019, 9, 14)),
+            Holiday("개천절", LocalDate.of(2019, 10, 3)),
+            Holiday("한글날", LocalDate.of(2019, 10, 9)),
+            Holiday("크리스마스", LocalDate.of(2019, 12, 25))
     )
 }

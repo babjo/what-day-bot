@@ -7,7 +7,7 @@ import org.junit.Test
 
 class HealthCheckControllerShould {
     @Test
-    fun ReturnOK_WhenServerIsHealthy() {
+    fun returnOK_WhenServerIsHealthy() {
         assertThat(HealthCheckController().`do`(), `is`("OK"))
     }
 }

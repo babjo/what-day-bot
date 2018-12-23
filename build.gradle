@@ -1,7 +1,7 @@
 buildscript {
     ext {
         springBootVersion = '2.0.4.RELEASE'
-        kotlin_version = '1.2.61'
+        kotlin_version = '1.2.71'
     }
     repositories {
         mavenCentral()
@@ -33,6 +33,7 @@ repositories {
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     runtime('org.postgresql:postgresql')
+    runtime('com.h2database:h2:1.4.197')
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
     // line-bot
