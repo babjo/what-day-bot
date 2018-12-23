@@ -13,11 +13,4 @@ class TurnOffPushMessages(private val event: MessageEvent<MessageContent>,
         roomRepository.save(Room(event.source.senderId, false))
         return TextMessage("OK! STOP!")
     }
-
-
-
-//
-//    class Factory(val roomRepository: RoomRepository) : CommandFactory {
-//        override fun create(event: MessageEvent<TextMessageContent>): Command = TurnOffPushMessages(event, roomRepository)
-//    }
 }
