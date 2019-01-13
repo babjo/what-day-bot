@@ -18,6 +18,7 @@ class URLShortenerClient {
     private val objectMapper = ObjectMapper().registerKotlinModule()
     private val logger = LoggerFactory.getLogger(URLShortenerClient::class.java)
 
+    // TODO: Use OkHttp
     fun shorten(url: String): String {
         try {
             val apiURL = "https://openapi.naver.com/v1/util/shorturl"

@@ -1,6 +1,6 @@
 package com.babjo.whatdaybot.handler.command
 
-import com.babjo.whatdaybot.model.Holiday
+import com.babjo.whatdaybot.Holiday
 import com.linecorp.bot.model.message.TextMessage
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before

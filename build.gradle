@@ -1,7 +1,7 @@
 buildscript {
     ext {
         springBootVersion = '2.0.4.RELEASE'
-        kotlin_version = '1.2.71'
+        kotlin_version = '1.3.11'
     }
     repositories {
         mavenCentral()
@@ -56,4 +56,8 @@ dependencies {
 
     // kotlin module of jackson
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
+
+    compile('io.reactivex.rxjava2:rxkotlin:2.3.0')
+    // https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.2.5'
 }
