@@ -2,8 +2,7 @@ package com.babjo.whatdaybot
 
 import com.babjo.whatdaybot.crawler.RisingKeywordCrawler
 import com.babjo.whatdaybot.handler.command.*
-import com.babjo.whatdaybot.handler.command.factory.CommandFactory
-import com.babjo.whatdaybot.handler.command.factory.TextPatternRule
+import com.babjo.whatdaybot.handler.eventMatcher
 import com.babjo.whatdaybot.naver.openapi.URLShortenerClient
 import com.babjo.whatdaybot.repository.RoomRepository
 import com.linecorp.bot.client.LineMessagingClient
@@ -47,22 +46,20 @@ class Context {
         roomRepository: RoomRepository, clock: Clock,
         risingKeywordCrawler: RisingKeywordCrawler,
         holidays: List<Holiday>
-    ) = CommandFactory()
-        .addCreationRule(TextPatternRule("RoomState") { GetAllRoomState(roomRepository) })
-        .addCreationRule(TextPatternRule("모레 무슨 요일\\?") { GetDayAfterTomorrow(clock) })
-        .addCreationRule(TextPatternRule("(미워|미웡)") { ReturnSimpleText("미워하지마") })
-        .addCreationRule(TextPatternRule("월요송") { GetMondaySong() })
-
-        .addCreationRule(TextPatternRule("핫해") { GetRisingKeywords(risingKeywordCrawler) })
-        .addCreationRule(TextPatternRule("(월급좀|월급\\?)") { GetNextSalaryDate(clock, holidays) })
-
-        .addCreationRule(TextPatternRule("start") { TurnOnPushMessages(it, roomRepository) })
-        .addCreationRule(TextPatternRule("stop") { TurnOffPushMessages(it, roomRepository) })
-
-        .addCreationRule(TextPatternRule("(오늘|금일) 무슨 요일\\?") { GetToday(clock) })
-        .addCreationRule(TextPatternRule("내일 무슨 요일\\?") { GetTomorrow(clock) })
-        .addCreationRule(TextPatternRule("어제 무슨 요일\\?") { GetYesterday(clock) })
-
+    ) = eventMatcher {
+        pattern("RoomState") { GetAllRoomState(roomRepository) }
+        pattern("RoomState") { GetAllRoomState(roomRepository) }
+        pattern("모레 무슨 요일\\?") { GetDayAfterTomorrow(clock) }
+        pattern("(미워|미웡)") { ReturnSimpleText("미워하지마") }
+        pattern("월요송") { GetMondaySong() }
+        pattern("핫해") { GetRisingKeywords(risingKeywordCrawler) }
+        pattern("(월급좀|월급\\?)") { GetNextSalaryDate(clock, holidays) }
+        pattern("start") { TurnOnPushMessages(it, roomRepository) }
+        pattern("stop") { TurnOffPushMessages(it, roomRepository) }
+        pattern("(오늘|금일) 무슨 요일\\?") { GetToday(clock) }
+        pattern("내일 무슨 요일\\?") { GetTomorrow(clock) }
+        pattern("어제 무슨 요일\\?") { GetYesterday(clock) }
+    }
 
     @Bean
     fun clock() = Clock.system(ZoneId.of("UTC+09:00"))!!
