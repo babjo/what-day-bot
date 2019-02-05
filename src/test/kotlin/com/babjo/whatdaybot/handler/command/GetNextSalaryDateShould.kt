@@ -32,19 +32,19 @@ class GetNextSalaryDateShould {
     }
 
     @Test
-    fun adjustDate_WhenSalaryDateIsSaturday() {
+    fun `should adjust the date, when the salary date is Saturday`() {
         // 2018. 08. 25. SATURDAY
         assertThat(command.getSalaryDate(2018, 8)).isEqualTo(LocalDate.of(2018, 8, 24))
     }
 
     @Test
-    fun adjustDate_WhenSalaryDateIsHoliday() {
+    fun `should adjust the date, when the salary date is holiday`() {
         // 2018. 09. 25. Korean Thanksgiving Day
         assertThat(command.getSalaryDate(2018, 9)).isEqualTo(LocalDate.of(2018, 9, 21))
     }
 
     @Test
-    fun adjustDate_WhenSalaryDateIsWeekendsAndHoliday() {
+    fun `should adjust the date, when the salary date is weekends and holiday`() {
         // 2018. 08. 25. SATURDAY
         // 2018. 08. 20 ~ 2018. 08. 24. My day (Holidays)
         // 2018. 08. 18 ~ 2018. 08. 19. Weekend
@@ -54,18 +54,18 @@ class GetNextSalaryDateShould {
     }
 
     @Test
-    fun notAdjustDate_WhenSalaryDateIsWeekDays() {
+    fun `should not adjust the date, when the salary date is weekdays`() {
         // 2018. 07. 25. WEDNESDAY
         assertThat(command.getSalaryDate(2018, 7)).isEqualTo(LocalDate.of(2018, 7, 25))
     }
 
     @Test
-    fun getSalaryDateOfThisMonth_WhenSalaryDateOfThisMontIsNotPassed() {
+    fun `should get the salary date Of this month, when the salary date of this month is not passed`() {
         assertThat(command.getNextSalaryDate(LocalDate.of(2018, 7, 13))).isEqualTo(LocalDate.of(2018, 7, 25))
     }
 
     @Test
-    fun getSalaryDateOfNextMonth_WhenSalaryDateOfThisMonthIsPassed() {
+    fun `should get the salary date of next month, when the salary date of this month is passed`() {
         assertThat(command.getNextSalaryDate(LocalDate.of(2018, 8, 24))).isEqualTo(LocalDate.of(2018, 9, 21))
     }
 

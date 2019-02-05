@@ -29,7 +29,7 @@ class LineMessageHandlerShould {
     private val handler = LineMessageHandler(factory)
 
     @Test
-    fun handleEvent_WhenAnEventComes_1() {
+    fun `should handle the event, when an event comes_1`() {
         // GIVEN
         factory.addCreationRule(TextPatternRule("미워|미웡") { ReturnSimpleText("미워하지마") })
         for (event in messageEvents("미워", "미웡")) {
@@ -39,7 +39,7 @@ class LineMessageHandlerShould {
     }
 
     @Test
-    fun handleEvent_WhenAnEventComes_2() {
+    fun `should handle the event, when an event comes_2`() {
         // GIVEN
         factory.addCreationRule(TextPatternRule("월급\\?|월급좀") {
             GetNextSalaryDate(Clock.fixed(Instant.parse("2018-07-22T00:00:00.00Z"), ZoneId.of("UTC+00:00"))) })
@@ -51,7 +51,7 @@ class LineMessageHandlerShould {
     }
 
     @Test
-    fun handleEvent_WhenAnEventComes_3() {
+    fun `should handle the event, when an event comes_3`() {
         // GIVEN
         val roomRepo = mock<RoomRepository>()
         factory.addCreationRule(TextPatternRule("stop") { TurnOffPushMessages(it, roomRepo) })
@@ -62,7 +62,7 @@ class LineMessageHandlerShould {
 
 
     @Test
-    fun handleEvent_WhenAnUnSupportedEventComes() {
+    fun `should handle the event, when an UnSupportedEvent comes`() {
         factory.clearCreationRules()
 
         // GIVEN

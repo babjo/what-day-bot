@@ -8,7 +8,7 @@ import com.linecorp.bot.client.LineMessagingClient
 import com.linecorp.bot.model.PushMessage
 import com.linecorp.bot.model.message.Message
 import io.reactivex.rxkotlin.toObservable
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import java.time.Clock
 import java.util.*
@@ -22,7 +22,7 @@ class LineMessageScheduler(
     private val roomRepository: RoomRepository
 ) {
 
-    private val logger = LoggerFactory.getLogger(LineMessageScheduler::class.java)
+    private val logger = KotlinLogging.logger {}
 
     @Scheduled(cron = "0 30 09 ? * MON", zone = "Asia/Seoul")
     fun pushMondaySongMessage() {

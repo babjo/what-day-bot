@@ -1,9 +1,9 @@
 package com.babjo.whatdaybot.handler.command
 
-import com.babjo.whatdaybot.crawler.PeriodicRisingKeywordCrawler
+import com.babjo.whatdaybot.crawler.RisingKeywordCrawler
 import com.linecorp.bot.model.message.TextMessage
 
-class GetRisingKeywords(private val crawler: PeriodicRisingKeywordCrawler) : Command {
+class GetRisingKeywords(private val crawler: RisingKeywordCrawler) : Command {
     override fun execute() =
         crawler.let {
             TextMessage("인기검색어 ${it.latestRefreshTime}\n" +

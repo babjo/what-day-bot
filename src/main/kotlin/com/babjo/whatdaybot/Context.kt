@@ -1,6 +1,5 @@
 package com.babjo.whatdaybot
 
-import com.babjo.whatdaybot.crawler.PeriodicRisingKeywordCrawler
 import com.babjo.whatdaybot.crawler.RisingKeywordCrawler
 import com.babjo.whatdaybot.handler.command.*
 import com.babjo.whatdaybot.handler.command.factory.CommandFactory
@@ -18,8 +17,8 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
-import java.util.Arrays.asList
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @Configuration
 class Context {
@@ -45,7 +44,7 @@ class Context {
     @Bean
     fun commandFactory(
         roomRepository: RoomRepository, clock: Clock,
-        periodicRisingKeywordCrawler: PeriodicRisingKeywordCrawler,
+        risingKeywordCrawler: RisingKeywordCrawler,
         holidays: List<Holiday>
     ) = CommandFactory()
         .addCreationRule(TextPatternRule("RoomState") { GetAllRoomState(roomRepository) })
@@ -53,7 +52,7 @@ class Context {
         .addCreationRule(TextPatternRule("(미워|미웡)") { ReturnSimpleText("미워하지마") })
         .addCreationRule(TextPatternRule("월요송") { GetMondaySong() })
 
-        .addCreationRule(TextPatternRule("핫해") { GetRisingKeywords(periodicRisingKeywordCrawler) })
+        .addCreationRule(TextPatternRule("핫해") { GetRisingKeywords(risingKeywordCrawler) })
         .addCreationRule(TextPatternRule("(월급좀|월급\\?)") { GetNextSalaryDate(clock, holidays) })
 
         .addCreationRule(TextPatternRule("start") { TurnOnPushMessages(it, roomRepository) })
@@ -72,20 +71,25 @@ class Context {
     fun urlShortenerClient() = URLShortenerClient()
 
     @Bean
-    fun periodicRisingKeywordCrawler(
+    fun risingKeywordCrawler(
         clock: Clock,
         urlShortenerClient: URLShortenerClient
-    ) = PeriodicRisingKeywordCrawler(
-        clock,
-        Executors.newScheduledThreadPool(1),
-        RisingKeywordCrawler(),
-        urlShortenerClient
-    ).also {
-        it.start()
+    ): RisingKeywordCrawler {
+        val timeoutSeconds: Long = 30
+
+        return RisingKeywordCrawler(
+            clock,
+            timeoutSeconds,
+            urlShortenerClient
+        ).also {
+            Executors
+                .newScheduledThreadPool(1)
+                .scheduleAtFixedRate(it::refresh, 0, timeoutSeconds * 2, TimeUnit.SECONDS)
+        }
     }
 
     @Bean
-    fun holidays() = asList(
+    fun holidays() = listOf(
         Holiday("추석(연휴)", LocalDate.of(2018, 9, 23)),
         Holiday("추석(연휴)", LocalDate.of(2018, 9, 24)),
         Holiday("추석(연휴)", LocalDate.of(2018, 9, 25)),
@@ -109,5 +113,5 @@ class Context {
         Holiday("개천절", LocalDate.of(2019, 10, 3)),
         Holiday("한글날", LocalDate.of(2019, 10, 9)),
         Holiday("크리스마스", LocalDate.of(2019, 12, 25))
-    )!!
+    )
 }
