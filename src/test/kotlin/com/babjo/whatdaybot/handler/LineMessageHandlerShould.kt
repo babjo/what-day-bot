@@ -5,8 +5,6 @@ import com.babjo.whatdaybot.Room
 import com.babjo.whatdaybot.handler.command.GetNextSalaryDate
 import com.babjo.whatdaybot.handler.command.ReturnSimpleText
 import com.babjo.whatdaybot.handler.command.TurnOffPushMessages
-import com.babjo.whatdaybot.handler.command.factory.CommandFactory
-import com.babjo.whatdaybot.handler.command.factory.TextPatternRule
 import com.babjo.whatdaybot.repository.RoomRepository
 import com.linecorp.bot.model.event.MessageEvent
 import com.linecorp.bot.model.event.message.MessageContent
@@ -24,13 +22,14 @@ import java.util.Arrays.asList
 
 class LineMessageHandlerShould {
 
-    private val factory = CommandFactory()
-    private val handler = LineMessageHandler(factory)
-
     @Test
     fun `should handle the event, when an event comes 1`() {
         // GIVEN
-        factory.addCreationRule(TextPatternRule("미워|미웡") { ReturnSimpleText("미워하지마") })
+        val matcher = eventMatcher {
+            pattern("미워|미웡") { ReturnSimpleText("미워하지마") }
+        }
+        val handler = LineMessageHandler(matcher)
+
         for (event in messageEvents("미워", "미웡")) {
             // WHEN, THEN
             assertThat(handler.handleEvent(event)).isEqualTo(TextMessage("미워하지마"))
@@ -40,9 +39,12 @@ class LineMessageHandlerShould {
     @Test
     fun `should handle the event, when an event comes 2`() {
         // GIVEN
-        factory.addCreationRule(TextPatternRule("월급\\?|월급좀") {
-            GetNextSalaryDate(Clock.fixed(Instant.parse("2018-07-22T00:00:00.00Z"), ZoneId.of("UTC+00:00")))
-        })
+        val matcher = eventMatcher {
+            pattern("월급\\?|월급좀") {
+                GetNextSalaryDate(Clock.fixed(Instant.parse("2018-07-22T00:00:00.00Z"), ZoneId.of("UTC+00:00")))
+            }
+        }
+        val handler = LineMessageHandler(matcher)
 
         for (event in messageEvents("월급?", "월급좀")) {
             // WHEN, THEN
@@ -58,7 +60,11 @@ class LineMessageHandlerShould {
             roomRepo.save(any<Room>())
         } returns Room("id", false)
 
-        factory.addCreationRule(TextPatternRule("stop") { TurnOffPushMessages(it, roomRepo) })
+        val matcher = eventMatcher {
+            pattern("stop") { TurnOffPushMessages(it, roomRepo) }
+        }
+        val handler = LineMessageHandler(matcher)
+
 
         // WHEN, THENl
         assertThat(handler.handleEvent(messageEvent("stop"))).isEqualTo(TextMessage("OK! STOP!"))
@@ -67,9 +73,10 @@ class LineMessageHandlerShould {
 
     @Test
     fun `should handle the event, when an UnSupportedEvent comes`() {
-        factory.clearCreationRules()
-
         // GIVEN
+        val matcher = eventMatcher {  }
+        val handler = LineMessageHandler(matcher)
+
         for (event in messageEvents(null)) {
             // WHEN, THEN
             assertThat(handler.handleEvent(event)).isEqualTo(null)
