@@ -37,8 +37,9 @@ class Context {
     @Bean
     fun lineMessageScheduler(
         clock: Clock, roomRepository: RoomRepository,
-        client: LineMessagingClient
-    ) = LineMessageScheduler(clock, Random(), client, roomRepository)
+        client: LineMessagingClient,
+        holidays: List<Holiday>
+    ) = LineMessageScheduler(clock, Random(), client, roomRepository, holidays)
 
 
     @Bean

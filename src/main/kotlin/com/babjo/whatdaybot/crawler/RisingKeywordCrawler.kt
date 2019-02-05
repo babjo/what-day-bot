@@ -2,6 +2,7 @@ package com.babjo.whatdaybot.crawler
 
 import com.babjo.whatdaybot.RisingKeyword
 import com.babjo.whatdaybot.naver.openapi.URLShortenerClient
+import com.google.common.annotations.VisibleForTesting
 import io.reactivex.Single
 import mu.KotlinLogging
 import org.jsoup.Jsoup
@@ -20,8 +21,8 @@ class RisingKeywordCrawler(
 ) {
 
     private val logger = KotlinLogging.logger {}
-    lateinit var latestRefreshTime: LocalDateTime
-    lateinit var latestRisingKeywords: List<RisingKeyword>
+    var latestRefreshTime: LocalDateTime = LocalDateTime.now(clock)
+    var latestRisingKeywords: List<RisingKeyword> = listOf()
 
     fun refresh() {
         val target = getTargetTime(LocalDateTime.now(clock))
@@ -52,15 +53,16 @@ class RisingKeywordCrawler(
             .map { RisingKeyword(keyword.text, it.result.url) }
             .onErrorReturn { keyword }
 
-    private fun doCrawling(dateTime: LocalDateTime): Single<List<RisingKeyword>> =
+    @VisibleForTesting
+    internal fun doCrawling(dateTime: LocalDateTime): Single<List<RisingKeyword>> =
         Single.fromCallable {
-            Jsoup
+            return@fromCallable Jsoup
                 .connect(
                     "https://datalab.naver.com/keyword/realtimeList.naver?datetime=" +
                             dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
                 )
                 .get()
-                .select(".select_date")[0]
+                .select(".rank_list")[0]
                 .select(".title")
                 .map(Element::text)
                 .map {

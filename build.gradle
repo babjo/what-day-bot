@@ -35,7 +35,7 @@ dependencies {
     runtime('org.postgresql:postgresql')
     runtime('com.h2database:h2:1.4.197')
     testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC1')
+    testCompile('io.mockk:mockk:1.9')
 
     // line-bot
     compile('com.linecorp.bot:line-bot-spring-boot:1.15.0')

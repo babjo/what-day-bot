@@ -11,6 +11,7 @@ import io.reactivex.rxkotlin.toObservable
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import java.time.Clock
+import java.time.LocalDate
 import java.util.*
 import java.util.Arrays.asList
 
@@ -19,7 +20,8 @@ class LineMessageScheduler(
     private val clock: Clock,
     private val random: Random,
     private val client: LineMessagingClient,
-    private val roomRepository: RoomRepository
+    private val roomRepository: RoomRepository,
+    private val holidays: List<Holiday>
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -49,6 +51,7 @@ class LineMessageScheduler(
         roomRepository.findAll()
             .toObservable()
             .filter { it.botRunning }
+            .filter(::isNotHoliday)
             .map { PushMessage(it.id, message) }
             .map(client::pushMessage)
             .forEach {
@@ -59,4 +62,9 @@ class LineMessageScheduler(
                 }
             }
     }
+
+    private fun isNotHoliday(room: Room) =
+        !holidays
+            .map { it.date }
+            .contains(LocalDate.now(clock))
 }
