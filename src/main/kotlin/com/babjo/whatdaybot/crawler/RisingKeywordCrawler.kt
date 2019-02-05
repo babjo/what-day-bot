@@ -34,7 +34,7 @@ class RisingKeywordCrawler(
                 if (t != null) {
                     logger.error("Failed to refresh", t)
                 } else {
-                    logger.error("Refreshed, $target")
+                    logger.info("Refreshed, $target")
                     latestRisingKeywords = keywords
                     latestRefreshTime = target
                 }

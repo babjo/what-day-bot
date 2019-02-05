@@ -7,6 +7,7 @@ import com.babjo.whatdaybot.repository.RoomRepository
 import com.linecorp.bot.client.LineMessagingClient
 import com.linecorp.bot.model.PushMessage
 import com.linecorp.bot.model.message.Message
+import io.reactivex.rxkotlin.toCompletable
 import io.reactivex.rxkotlin.toObservable
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
@@ -51,20 +52,21 @@ class LineMessageScheduler(
         roomRepository.findAll()
             .toObservable()
             .filter { it.botRunning }
-            .filter(::isNotHoliday)
-            .map { PushMessage(it.id, message) }
-            .map(client::pushMessage)
-            .forEach {
-                try {
-                    it.get()
-                } catch (e: Exception) {
-                    logger.error("Failed to push a message", e)
+            .filter {
+                val isHoliday = isHoliday()
+                if (isHoliday) {
+                    logger.info("Filtered a message to push: message=$message, room=$it")
                 }
+                !isHoliday
             }
+            .map { PushMessage(it.id, message) }
+            .flatMapCompletable { client.pushMessage(it).toCompletable() }
+            .doOnError { logger.error("Failed to push a message", it) }
+            .subscribe()
     }
 
-    private fun isNotHoliday(room: Room) =
-        !holidays
+    fun isHoliday() =
+        holidays
             .map { it.date }
             .contains(LocalDate.now(clock))
 }

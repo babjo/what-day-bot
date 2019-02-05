@@ -65,7 +65,7 @@ class Context {
 
 
     @Bean
-    fun clock() = Clock.system(ZoneId.of("UTC+09:00"))
+    fun clock() = Clock.system(ZoneId.of("UTC+09:00"))!!
 
     @Bean
     @ConfigurationProperties(prefix = "naver.openapi")

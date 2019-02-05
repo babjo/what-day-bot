@@ -7,7 +7,7 @@ class GetRisingKeywords(private val crawler: RisingKeywordCrawler) : Command {
     override fun execute() =
         crawler.let {
             TextMessage("인기검색어 ${it.latestRefreshTime}\n" +
-                    (0..10).joinToString("\n") { i ->
+                    (0..minOf(10, it.latestRisingKeywords.size - 1)).joinToString("\n") { i ->
                         "${i + 1}. ${it.latestRisingKeywords[i].text}: ${it.latestRisingKeywords[i].url}"
                     }
             )
