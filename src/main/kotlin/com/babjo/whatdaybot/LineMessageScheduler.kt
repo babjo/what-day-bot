@@ -1,53 +1,72 @@
 package com.babjo.whatdaybot
 
 import com.babjo.whatdaybot.handler.command.GetMondaySong
+import com.babjo.whatdaybot.handler.command.GetRandomText
 import com.babjo.whatdaybot.handler.command.GetToday
-import com.babjo.whatdaybot.handler.command.ReturnRandomText
 import com.babjo.whatdaybot.repository.RoomRepository
 import com.linecorp.bot.client.LineMessagingClient
 import com.linecorp.bot.model.PushMessage
 import com.linecorp.bot.model.message.Message
-import org.slf4j.LoggerFactory
+import io.reactivex.rxkotlin.toCompletable
+import io.reactivex.rxkotlin.toObservable
+import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import java.time.Clock
+import java.time.LocalDate
 import java.util.*
 import java.util.Arrays.asList
-import java.util.concurrent.ExecutionException
 
 
-class LineMessageScheduler(private val clock: Clock,
-                           private val random: Random,
-                           private val client: LineMessagingClient,
-                           private val roomRepository: RoomRepository) {
+class LineMessageScheduler(
+    private val clock: Clock,
+    private val random: Random,
+    private val client: LineMessagingClient,
+    private val roomRepository: RoomRepository,
+    private val holidays: List<Holiday>
+) {
 
-    private val logger = LoggerFactory.getLogger(LineMessageScheduler::class.java)
+    private val logger = KotlinLogging.logger {}
 
     @Scheduled(cron = "0 30 09 ? * MON", zone = "Asia/Seoul")
     fun pushMondaySongMessage() {
-        pushMessage(GetMondaySong().execute())
+        GetMondaySong()
+            .execute()
+            .also(this::pushMessage)
     }
 
     @Scheduled(cron = "0 30 09 ? * MON-FRI", zone = "Asia/Seoul")
     fun pushTodayOfWeekMessages() {
-        pushMessage(GetToday(clock).execute())
+        GetToday(clock)
+            .execute()
+            .also(this::pushMessage)
     }
 
     @Scheduled(cron = "0 0 19 ? * MON-FRI", zone = "Asia/Seoul")
     fun pushOverworkQuestionMessages() {
-        pushMessage(ReturnRandomText(random, asList("오늘 야근?", "야근야근???", "오늘도 야근?!???", "야근 ㄱ?", "야근각?")).execute())
+        GetRandomText(random, asList("오늘 야근?", "야근야근???", "오늘도 야근?!???", "야근 ㄱ?", "야근각?"))
+            .execute()
+            .also(this::pushMessage)
     }
 
     private fun pushMessage(message: Message?) {
-        val rooms = roomRepository.findAll()
-        rooms.stream().filter { it.botRunning }.forEach { room ->
-            val pushMessage = PushMessage(room.id, message)
-            try {
-                client.pushMessage(pushMessage).get()
-            } catch (e: InterruptedException) {
-                logger.error("Failed to push a message. roomId: {}", room.id, e)
-            } catch (e: ExecutionException) {
-                logger.error("Failed to push a message. roomId: {}", room.id, e)
+        roomRepository.findAll()
+            .toObservable()
+            .filter { it.botRunning }
+            .filter {
+                val isHoliday = isHoliday()
+                if (isHoliday) {
+                    logger.info("Filtered a message to push: message=$message, room=$it")
+                }
+                !isHoliday
             }
-        }
+            .map { PushMessage(it.id, message) }
+            .flatMapCompletable { client.pushMessage(it).toCompletable() }
+            .doOnError { logger.error("Failed to push a message", it) }
+            .subscribe()
     }
+
+    fun isHoliday() =
+        holidays
+            .map { it.date }
+            .contains(LocalDate.now(clock))
 }

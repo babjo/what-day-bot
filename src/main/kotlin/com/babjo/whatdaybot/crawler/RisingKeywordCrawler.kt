@@ -1,41 +1,88 @@
 package com.babjo.whatdaybot.crawler
 
-import com.babjo.whatdaybot.model.RisingKeyword
+import com.babjo.whatdaybot.RisingKeyword
+import com.babjo.whatdaybot.naver.openapi.URLShortenerClient
+import com.google.common.annotations.VisibleForTesting
+import io.reactivex.Single
+import mu.KotlinLogging
 import org.jsoup.Jsoup
-import org.slf4j.LoggerFactory
-import java.io.IOException
+import org.jsoup.nodes.Element
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
+import java.time.Clock
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 
-class RisingKeywordCrawler {
+class RisingKeywordCrawler(
+    private val clock: Clock,
+    private val timeoutSeconds: Long,
+    private val urlShortenerClient: URLShortenerClient
+) {
 
-    private val logger = LoggerFactory.getLogger(RisingKeywordCrawler::class.java)
+    private val logger = KotlinLogging.logger {}
+    var latestRefreshTime: LocalDateTime = LocalDateTime.now(clock)
+    var latestRisingKeywords: List<RisingKeyword> = listOf()
 
-    @Throws(IOException::class)
-    fun doCrawling(dateTime: LocalDateTime): List<RisingKeyword> {
-        val doc = Jsoup.connect("https://datalab.naver.com/keyword/realtimeList.naver?datetime=" + dateTime
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))).get()
-        val element = doc.select(".select_date")[0]
-        val keywords = element.select(".title")
+    fun refresh() {
+        val target = getTargetTime(LocalDateTime.now(clock))
 
-        return keywords
-                .map { keyword -> keyword.text() }
-                .map { text -> RisingKeyword(text, "https://search.naver.com/search.naver?query=${encodeURIComponent(text)}") }
+        doCrawling(target)
+            .flatMap { Single.merge(it.map(::shortenUrl)).toList() }
+            .timeout(timeoutSeconds, TimeUnit.SECONDS)
+            .subscribe { keywords, t ->
+                if (t != null) {
+                    logger.error("Failed to refresh", t)
+                } else {
+                    logger.info("Refreshed, $target")
+                    latestRisingKeywords = keywords
+                    latestRefreshTime = target
+                }
+            }
     }
 
-    private fun encodeURIComponent(s: String): String {
-        return try {
-            URLEncoder.encode(s, "UTF-8")
-                    .replace("\\+".toRegex(), "%20")
-                    .replace("\\%21".toRegex(), "!")
-                    .replace("\\%27".toRegex(), "'")
-                    .replace("\\%28".toRegex(), "(")
-                    .replace("\\%29".toRegex(), ")")
-                    .replace("\\%7E".toRegex(), "~")
-        } catch (e: UnsupportedEncodingException) {
-            s
+    private fun getTargetTime(now: LocalDateTime) =
+        now.let {
+            var sec = it.second
+            sec %= 30
+            it.plusSeconds((-sec).toLong())
         }
+
+    private fun shortenUrl(keyword: RisingKeyword): Single<RisingKeyword> =
+        urlShortenerClient
+            .shorten(keyword.url)
+            .map { RisingKeyword(keyword.text, it.result.url) }
+            .onErrorReturn { keyword }
+
+    @VisibleForTesting
+    internal fun doCrawling(dateTime: LocalDateTime): Single<List<RisingKeyword>> =
+        Single.fromCallable {
+            return@fromCallable Jsoup
+                .connect(
+                    "https://datalab.naver.com/keyword/realtimeList.naver?datetime=" +
+                            dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
+                )
+                .get()
+                .select(".rank_list")[0]
+                .select(".title")
+                .map(Element::text)
+                .map {
+                    RisingKeyword(
+                        it,
+                        "https://search.naver.com/search.naver?query=${encodeURIComponent(it)}"
+                    )
+                }
+        }
+
+    private fun encodeURIComponent(s: String) = try {
+        URLEncoder.encode(s, "UTF-8")
+            .replace("\\+".toRegex(), "%20")
+            .replace("\\%21".toRegex(), "!")
+            .replace("\\%27".toRegex(), "'")
+            .replace("\\%28".toRegex(), "(")
+            .replace("\\%29".toRegex(), ")")
+            .replace("\\%7E".toRegex(), "~")
+    } catch (e: UnsupportedEncodingException) {
+        s
     }
 }
