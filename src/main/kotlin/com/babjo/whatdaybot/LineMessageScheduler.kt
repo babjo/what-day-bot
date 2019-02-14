@@ -7,6 +7,7 @@ import com.babjo.whatdaybot.repository.RoomRepository
 import com.linecorp.bot.client.LineMessagingClient
 import com.linecorp.bot.model.PushMessage
 import com.linecorp.bot.model.message.Message
+import io.reactivex.Completable
 import io.reactivex.rxkotlin.toCompletable
 import io.reactivex.rxkotlin.toObservable
 import mu.KotlinLogging
@@ -61,7 +62,10 @@ class LineMessageScheduler(
             }
             .map { PushMessage(it.id, message) }
             .flatMapCompletable { client.pushMessage(it).toCompletable() }
-            .doOnError { logger.error("Failed to push a message", it) }
+            .onErrorResumeNext {
+                logger.error("Failed to push a message", it)
+                Completable.complete()
+            }
             .subscribe()
     }
 
