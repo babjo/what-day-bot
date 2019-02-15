@@ -32,24 +32,24 @@ class LineMessageScheduler(
     fun pushMondaySongMessage() {
         GetMondaySong()
             .execute()
-            .also(this::pushMessage)
+            .also(this::pushMessages)
     }
 
     @Scheduled(cron = "0 30 09 ? * MON-FRI", zone = "Asia/Seoul")
     fun pushTodayOfWeekMessages() {
         GetToday(clock)
             .execute()
-            .also(this::pushMessage)
+            .also(this::pushMessages)
     }
 
     @Scheduled(cron = "0 0 19 ? * MON-FRI", zone = "Asia/Seoul")
     fun pushOverworkQuestionMessages() {
         GetRandomText(random, asList("오늘 야근?", "야근야근???", "오늘도 야근?!???", "야근 ㄱ?", "야근각?"))
             .execute()
-            .also(this::pushMessage)
+            .also(this::pushMessages)
     }
 
-    private fun pushMessage(message: Message?) {
+    private fun pushMessages(message: Message?) {
         roomRepository.findAll()
             .toObservable()
             .filter { it.botRunning }
@@ -61,13 +61,17 @@ class LineMessageScheduler(
                 !isHoliday
             }
             .map { PushMessage(it.id, message) }
-            .flatMapCompletable { client.pushMessage(it).toCompletable() }
+            .flatMapCompletable(::pushMessage)
+            .subscribe()
+    }
+
+    private fun pushMessage(message: PushMessage) =
+        client.pushMessage(message)
+            .toCompletable()
             .onErrorResumeNext {
                 logger.error("Failed to push a message", it)
                 Completable.complete()
             }
-            .subscribe()
-    }
 
     fun isHoliday() =
         holidays
