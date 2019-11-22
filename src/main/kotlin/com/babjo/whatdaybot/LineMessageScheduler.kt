@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import java.time.Clock
 import java.time.LocalDate
 import java.util.*
-import java.util.Arrays.asList
 
 
 class LineMessageScheduler(
@@ -44,7 +43,7 @@ class LineMessageScheduler(
 
     @Scheduled(cron = "0 0 19 ? * MON-FRI", zone = "Asia/Seoul")
     fun pushOverworkQuestionMessages() {
-        GetRandomText(random, asList("오늘 야근?", "야근야근???", "오늘도 야근?!???", "야근 ㄱ?", "야근각?"))
+        GetRandomText(random, listOf("오늘 야근?", "야근야근???", "오늘도 야근?!???", "야근 ㄱ?", "야근각?"))
             .execute()
             .also(this::pushMessages)
     }
