@@ -51,7 +51,7 @@ class RisingKeywordCrawler(
     private fun shortenUrl(keyword: RisingKeyword): Single<RisingKeyword> =
         urlShortenerClient
             .shorten(keyword.url)
-            .map { RisingKeyword(keyword.text, it.result.url) }
+            .map { RisingKeyword(keyword.text, it) }
             .onErrorReturn { keyword }
 
     @VisibleForTesting

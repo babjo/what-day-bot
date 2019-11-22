@@ -36,5 +36,10 @@ class URLShortenerClient {
         .build()
         .create(UrlService::class.java)
 
-    fun shorten(url: String): Single<Response> = urlService.shorten(this.clientId!!, this.clientSecret!!, url)
+    fun shorten(url: String): Single<String> {
+        if (this.clientId == null || this.clientSecret == null) {
+            return Single.just(url)
+        }
+        return urlService.shorten(this.clientId!!, this.clientSecret!!, url).map { it.result.url }
+    }
 }

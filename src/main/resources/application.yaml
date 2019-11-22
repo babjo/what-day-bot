@@ -1,0 +1,41 @@
+spring.profiles.active: local
+
+spring:
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate.ddl-auto: update
+    # Handle: java.sql.SQLFeatureNotSupportedException: Method org.postgresql.jdbc.PgConnection.createClob() is not yet implemented.
+    # https://github.com/pgjdbc/pgjdbc/issues/1102
+    properties.hibernate.temp.use_jdbc_metadata_defaults: false
+
+line.bot:
+  # (Required) line bot secret and token
+  channel-secret:
+  channel-token:
+
+---
+spring.profiles: local
+spring:
+  jpa.database-platform: org.hibernate.dialect.H2Dialect
+  datasource.driverClassName: org.h2.Driver
+
+---
+spring.profiles:
+  - beta
+  - prod
+
+spring:
+  jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    driverClassName: org.postgresql.Driver
+    maxActive: 10
+    maxIdle: 5
+    minIdle: 2
+    initialSize: 5
+    removeAbandoned: true
+
+    # (Optional) Fill your own database connection information. If you don't fill them, the application will use in-memory db(H2).
+    url:
+    username:
+    password:
